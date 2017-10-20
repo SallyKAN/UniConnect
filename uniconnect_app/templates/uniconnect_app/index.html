@@ -1,19 +1,35 @@
 {% extends 'uniconnect_app/base.html' %}
-
+{% load comments %}
 {% block content %}
-<div class="container"
-  <div class="jumbotron">
-    <h1>Welcome to UniConnect</h1>
+    <div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-1">
+                <p>Hello, {{user.username}}</p>
+        <h3>Tags</h3>
+        {% for tag in tags %}
+        <p><a href="/tag/{{tag.tag}}/">{{ tag.tag }}</a></p>
+        {%endfor %}
+       </div>
+        <div class="col-lg-11">
+            <div class="container" style="width:40%">
+                <p><a href="/post/">Create a new post</a></p>
+                <h3>Recent posts</h3>
+                {% for post in posts %}
+                    {% get_comment_count for post as comment_count %}
+            <h3><a href="/post/{{post.id}}/">{{ post.subject }}</a></h3>
+                    <p>{{ post.author }}</p>
+                    <p>{{ comment_count }} comments</p>
+            {%endfor %}
+            </div>
+        </div>
+        </div>
+
     </div>
-</div>
 
 
-<a href="/post"> New Post </a>
 
-<h3>Recent community posts</h3> 
-{% for post in posts %}
-<p><a href="/post/{{post.id}}/">{{ post.subject }}</a></p>
-{%endfor %}
 
-</div>
+
+
+
 {% endblock %}

@@ -53,10 +53,14 @@ def update_profile(request, username):
 
 def index(request):
     if not request.user.is_authenticated:
-        latest_posts = Post.objects.filter(public=True).order_by('-post_date')[:5]
+        latest_posts = Post.objects.filter(public=True).order_by('-post_date')
+        post_tags = PostTag.objects.filter(
+            post__in=[p for p in latest_posts]
+        ).distinct()
         return render(
             request, 'uniconnect_app/index.html', {
-                'posts': latest_posts
+                'posts': latest_posts,
+                'tags': set([tag.tag for tag in post_tags])
             })
     else:
         return HttpResponseRedirect('/me/')

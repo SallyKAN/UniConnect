@@ -98,3 +98,6 @@ input[type=text], select {
     padding:10px;
 
 }
+#id_honeypot {
+    display: none;
+}
