@@ -1,0 +1,11 @@
+{% extends 'uniconnect_app/base.html' %}
+
+{% block content %}
+<h2>{{ user.get_full_name }}</h2>
+<ul>
+  <li><a href="/submit">Edit</a></li>
+  <li>Username: {{ user.username }}</li>
+  <li>Location: {{ user.profile.location }}</li>
+  <li>Birth Date: {{ user.profile.birth_date }}</li>
+</ul>
+{% endblock %}
