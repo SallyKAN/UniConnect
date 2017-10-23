@@ -7,7 +7,7 @@
                 <p>Hello, {{user.username}}</p>
         <h3>Tags</h3>
         {% for tag in tags %}
-        <p><a href="/tag/{{tag.tag}}/">{{ tag.tag }}</a></p>
+        <p><a href="/tag/{{tag.tag}}/">{{tag.tag}}</a></p>
         {%endfor %}
        </div>
         <div class="col-lg-11">

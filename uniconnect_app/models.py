@@ -6,6 +6,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django_comments.signals import comment_was_posted
 
+
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
@@ -44,6 +45,12 @@ class ProfileForm(forms.ModelForm):
         fields = ('bio', 'location', 'birth_date')
 
 
+class Tag(models.Model):
+    # We will use the implcit id
+    tag = models.CharField(max_length=10, unique=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+
 class Post(models.Model):
     subject = models.CharField(max_length=160)
     content = models.CharField(max_length=800)
@@ -51,6 +58,7 @@ class Post(models.Model):
     public = models.BooleanField(default=False)
     post_date = models.DateTimeField(auto_now_add=True)
     followers = models.ManyToManyField(User, related_name='user_followers')
+    tags = models.ManyToManyField(Tag, related_name="tagged")
 
 
 class Notification(models.Model):
@@ -59,15 +67,9 @@ class Notification(models.Model):
     text = models.CharField(max_length=36,default="New comment on a post you follow")
 
 
-class Tag(models.Model):
-    # We will use the implcit id
-    tag = models.CharField(max_length=10, unique=True)
-    creation_date = models.DateTimeField(auto_now_add=True)
-
-
-class PostTag(models.Model):
-    post = models.ForeignKey(Post)
-    tag = models.ForeignKey(Tag)
+#class PostTag(models.Model):
+ #   post = models.ForeignKey(Post)
+  #  tag = models.ForeignKey(Tag)
 
 
 comment_was_posted.connect(notify_followers)

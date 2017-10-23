@@ -3,7 +3,7 @@ from django.http import (
     HttpResponseNotAllowed, HttpResponseRedirect, HttpResponse,
     HttpResponseForbidden, HttpResponseNotFound,
 )
-from .models import Notification, Post, Tag, PostTag, User, UserForm, ProfileForm
+from .models import Notification, Tag, Post, User, UserForm, ProfileForm
 from .forms import TilForm, RegisterForm
 from .tokens import account_activation_token
 
@@ -54,13 +54,11 @@ def update_profile(request, username):
 def index(request):
     if not request.user.is_authenticated:
         latest_posts = Post.objects.filter(public=True).order_by('-post_date')
-        post_tags = PostTag.objects.filter(
-            post__in=[p for p in latest_posts]
-        ).distinct()
+        latest_tags = Tag.objects.filter(tags__in=latest_posts).distinct()
         return render(
             request, 'uniconnect_app/index.html', {
                 'posts': latest_posts,
-                'tags': set([tag.tag for tag in post_tags])
+                'tags': latest_tags
             })
     else:
         return HttpResponseRedirect('/me/')
@@ -69,14 +67,12 @@ def index(request):
 def me(request):
     if request.user.is_authenticated:
         latest_posts = Post.objects.order_by('-post_date')
-        post_tags = PostTag.objects.filter(
-            post__in=[p for p in latest_posts]
-        ).distinct()
+        latest_tags = Tag.objects.filter(tagged__in=latest_posts).distinct()
         return render(
             request, 'uniconnect_app/me.html', {
                 'user': request.user,
                 'posts': latest_posts,
-                'tags': set([tag.tag for tag in post_tags]),
+                'tags': latest_tags,
             })
     else:
         return HttpResponseRedirect('/login/')
@@ -194,8 +190,7 @@ def create_post(request):
                         t.save()
                     else:
                         t = t[0]
-                    pt = PostTag(post=p, tag=t)
-                    pt.save()
+                    p.tags.add(t)
 
             return HttpResponseRedirect('/post/{0}/'.format(p.id))
         else:
@@ -213,7 +208,7 @@ def show_post(request, post_id=None):
     if not post.public:
         if not post.author == request.user:
             return HttpResponseForbidden()
-    post_tags = PostTag.objects.filter(post=post)
+    post_tags = post.tags.all()
     return render(request, 'uniconnect_app/view_post.html', {
         'post': post,
         'tags': post_tags if len(post_tags) else None,
@@ -224,13 +219,13 @@ def tag_view(request, tag):
     t = Tag.objects.filter(tag=tag)
     if t.all():
         t = t[0]
-        posts = PostTag.objects.filter(tag=t)
+        posts = t.tagged.all()
         # Query all the public posts or the posts by
         # the currently logged in user with the
         # given tag
         posts = Post.objects.filter(id__in=[
-            p.post.id for p in posts if p.post.public or
-            p.post.author == request.user]
+            p.id for p in posts if p.public or
+            p.author == request.user]
         )
         return render(request, 'uniconnect_app/tag_view.html', {
             'tag': t.tag,
