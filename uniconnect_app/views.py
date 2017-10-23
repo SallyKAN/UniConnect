@@ -3,7 +3,7 @@ from django.http import (
     HttpResponseNotAllowed, HttpResponseRedirect, HttpResponse,
     HttpResponseForbidden, HttpResponseNotFound,
 )
-from .models import Post, Tag, PostTag, User, UserForm, ProfileForm
+from .models import Notification, Post, Tag, PostTag, User, UserForm, ProfileForm
 from .forms import TilForm, RegisterForm
 from .tokens import account_activation_token
 
@@ -126,7 +126,7 @@ def signup(request):
             user.save()
             message = render_to_string('activate_email.html', {
                 'user': user,
-                'domain': 'http://127.0.0.1:8000',
+                'domain': '127.0.0.1:8000',
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': account_activation_token.make_token(user),
             })
@@ -182,6 +182,7 @@ def create_post(request):
                 public=form.cleaned_data.get('public'),
             )
             p.save()
+            p.followers.add(request.user)
             tags = form.cleaned_data.get('tags')
             if tags:
                 tags_list = tags.split(',')
@@ -237,3 +238,15 @@ def tag_view(request, tag):
         })
     else:
         return HttpResponseNotFound('<h1> Tag Not Found </h1>')
+
+
+def notifications(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect('/login/')
+    notifis = Notification.objects.filter(
+            owner=request.user
+    )
+    return render(
+        request, 'uniconnect_app/notifications.html', {
+            'notifications': notifis
+        })
