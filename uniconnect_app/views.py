@@ -244,6 +244,7 @@ def create_post(request):
         request, 'uniconnect_app/create_post.html', {
             'form': form,
         })
+
 def update_post(request,post_id=None):
     post = Post.objects.filter(id=post_id)
     form = TilForm(request.POST or None, instance=post)
