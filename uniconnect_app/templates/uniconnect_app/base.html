@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+    <title>{% block title %}UniConnect{% endblock %}</title>
+    {% load staticfiles %}
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link href='https://fonts.googleapis.com/css?family=Satisfy' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css?family=Arima+Madurai" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Sans" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Kaushan+Script" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'board/style.css' %}"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container-fluid">
+
+    <nav class="navbar navbar-inverse" id="menu">
+        <a class="navbar-brand" id="branding" href="/">UniConnect</a>
+        <div id="searchform">
+         <input type="text" id="searchbox" name="searchbox" placeholder="Enter Search Term" >
+        <span id="searchbutton"> <a href="#"><span class="glyphicon glyphicon-search"></span></a></span>
+
+        </div>
+
+        <ul class="nav navbar-nav navbar-right" id="menubuttons">
+            <li>
+                <a href="/profile/{{user.username}}">
+                    <span class="glyphicon glyphicon-user">{{user.username}}</span>
+                </a>
+            </li>
+            {% if user.is_authenticated %}
+            <li><a href="/logout">Logout</a></li>
+            {% else %}
+            <li><a href="/login">Login</a></li>
+            {% endif %}
+
+            <li>
+                <a href="/notifications">
+                    <span class="glyphicon glyphicon-globe"></span>
+                </a>
+            </li>
+
+                  <li>
+                <a href="#">
+                    <span class="glyphicon glyphicon-question-sign"></span>
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+
+    </div>
+
+
+
+</body>
+{% block content %}
+{% endblock %}
+

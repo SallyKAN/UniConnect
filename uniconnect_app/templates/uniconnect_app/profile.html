@@ -1,0 +1,91 @@
+{% extends 'uniconnect_app/base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <div class="span3 well">
+        <center>
+        <a href="#aboutModal" data-toggle="modal" data-target="#myModal"><img src="https://i.pinimg.com/736x/bf/b6/19/bfb6192a36bb33728209ac1040f2f574--pembroke-welsh-corgi-dog-training.jpg" name="aboutme" width="140" height="140" class="img-circle"></a>
+        <h3>{{u.username}}<small>{{u.profile.location}}</small></h3>
+        <em>click my face for more</em>
+		</center>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title" id="myModalLabel">More About {{u.username}}</h4>
+                    </div>
+                <div class="modal-body">
+                    <center>
+                    <img src="https://i.pinimg.com/736x/bf/b6/19/bfb6192a36bb33728209ac1040f2f574--pembroke-welsh-corgi-dog-training.jpg" name="aboutme" width="140" height="140" border="0" class="img-circle"></a>
+                    <h3 class="media-heading">{{u.username}}<small>{{u.profile.location}}</small></h3>
+                    <span><strong>Date Joined: </strong>{{u.profile.date_joined}}</span>
+                    </center>
+                    <hr>
+                    <center>
+                    <p class="text-left"><strong>Bio: </strong><br>
+                        {{ u.profile.bio }}</p>
+                    <br>
+                    </center>
+                </div>
+                <div class="modal-footer">
+                    <center>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Mail</button>
+                    </center>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for post in posts %}
+<div class="container">
+<div class="row">
+    <div class="col-md-1"></div>
+	<div class="col-md-6">
+		<div id="postlist">
+			<div class="panel">
+                <div class="panel-heading">
+                    <div class="text-center">
+                        <div class="row">
+                            <div class="col-sm-9">
+                                <h3 class="pull-left"><p><a href="/post/{{post.id}}/">{{ post.subject }}</a></h3>
+                            </div>
+                            <div class="col-sm-3">
+                                <h4 class="pull-right">
+                                <small><em>{{post.post_date}}</em></small>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <div class="panel-body">
+                {{post.content}}
+            </div>
+
+            <div class="panel-footer">
+                {% if tags %}
+                   {% for tag in tags %}
+                   <a href="/tag/{{tag.tag.tag}}/">{{tag.tag.tag}}</a>
+            </i>
+        {% endfor %}
+        {% endif %}
+            </div>
+        </div>
+
+        </div>
+    </div>
+</div>
+	<div class="col-md-1"></div>
+	<div class="col-md-3">
+	</div>
+	<div class="col-md-1">
+	</div>
+</div>
+
+{%endfor %}
+{% endblock %}

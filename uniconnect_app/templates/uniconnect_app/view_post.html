@@ -1,0 +1,45 @@
+{% extends 'uniconnect_app/base.html' %}
+{% load comments %}
+{% block content %}
+
+<div class="container" style="width:40%">
+    <h3>{{post.subject|title}}</h3>
+    <h4>By <i>{{post.author.username}} </i></h4>
+    {% if tags %}
+    <h4>Tags: 
+        {% for tag in tags %}
+        <a href="/tag/{{tag.tag}}/">{{tag.tag}}</a>
+        </i>
+        {% endfor %}
+        {% endif %}
+
+    </h4>
+        <p><i>Published on </i> {{ post.post_date }} </p>
+    <p> {{post.content}} </p>
+    {% get_comment_count for post as comment_count %}
+    <p>{{ comment_count }} comments have been posted.</p>
+    {% render_comment_list for post %}
+</div>
+    <!--<a href=  % url 'delete-post'%}>delete</a> -->
+<!-- A context variable called form is created with the necessary hidden
+fields, timestamps and security hashes -->
+    {% if user.is_authenticated %}
+    {% get_comment_form for post as form %}
+    <form action="{% comment_form_target %}" method="POST">
+    {% csrf_token %}
+    {{ form.comment }}
+
+    {{ form.content_type }}
+    {{ form.object_pk }}
+    {{ form.timestamp }}
+    {{ form.security_hash }}
+
+    <input type="hidden" name="next" value="/post/{{ post.id }}/"/>
+    <input type="submit" value="Add comment" id="id_submit" />
+    </form>
+{% else %}
+    <p>Please <a href="{% url 'login' %}">log in</a> to leave a comment.</p>
+{% endif %}
+
+
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'uniconnect_app/base.html' %}
+{% load comments %}
+{% block content %}
+    <div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-1">
+         <p>Hello, {{user.username}}<small><a href="/submit/">(edit profile)</a></small></p>
+        <h3>Tags</h3>
+        {% for tag in tags %}
+        <p><a href="/tag/{{tag.tag}}/">{{ tag.tag }}</a></p>
+        {%endfor %}
+       </div>
+        <div class="col-lg-11">
+            <div class="container" style="width:40%">
+                <p><a href="/post/">Create a new post</a></p>
+                <h3>Recent posts</h3>
+
+               <div id = selectform>
+               <form class="form-horizontal" method='post'>
+                    {% csrf_token %}
+                   {{ select_form }}
+                   <input type='submit' value='Sort'>
+                </form>
+               </div>
+                {% for post in posts %}
+                    {% get_comment_count for post as comment_count %}
+
+            <h3><a href="/post/{{post.id}}/">{{ post.subject }}</a></h3>
+                    <p>{{ post.author }}</p>
+                    <p>{{ comment_count }} comments</p>
+
+            {%endfor %}
+            </div>
+        </div>
+        </div>
+
+    </div>
+
+
+
+
+
+
+
+{% endblock %}
