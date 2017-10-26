@@ -56,6 +56,8 @@ def update_profile(request, username):
         'posts': posts,
         'tags': latest_tags,
     })
+
+
 def index(request):
     if not request.user.is_authenticated:
         latest_posts = Post.objects.filter(public=True).order_by('-post_date')
@@ -195,7 +197,7 @@ def signup(request):
             user = form.save(commit=False)
             user.is_active = False
             user.save()
-            message = render_to_string('activate_email.html', {
+            message = render_to_string('email/templates/activate_email.html', {
                 'user': user,
                 'domain': '127.0.0.1:8000',
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
@@ -212,8 +214,6 @@ def signup(request):
             login(request, user)
             return HttpResponseRedirect('/me/')
         else:
-            # If there were errors, we render the form with these
-            # errors
             return render(request, 'uniconnect_app/signup.html', {'form': form})
 
 
@@ -287,6 +287,8 @@ def update_post(request,post_id=None):
         request, 'uniconnect_app/create_post.html', {
             'form': form,
         })
+
+
 def delete_post(request,post_id=None):
     post = Post.objects.filter(id=post_id)[0]
     form = TilForm(request.POST or None, instance=post)
@@ -351,6 +353,7 @@ def notifications(request):
             'notifications': notifis
         })
   #api view
+
 
 class PostCreateView(generics.ListCreateAPIView):
     """This class defines the create behavior of our rest api."""
