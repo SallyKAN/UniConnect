@@ -1,18 +1,30 @@
 from django import forms
-from .models import Profile
+
+from .models import Post
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.forms import ModelForm,CharField
 
 
-class TilForm(forms.Form):
-    subject = forms.CharField(label='Title', max_length=160)
-    content = forms.CharField(label='What did I learn today?',
-                              widget=forms.Textarea, max_length=800)
+class TilForm(ModelForm):
+    tags = CharField(label='Tags (comma separated, maximum: 4)',
+                     required=False,
+                     max_length=43)
+
+    class Meta:
+        model = Post
+        fields = '__all__'
+        exclude = ['author', 'followers']
+
+
+#subject = forms.CharField(label='Title', max_length=160)
+#content = forms.CharField(label='What did I learn today?',
+ #                             widget=forms.Textarea, max_length=800)
     # four tags separated by a comma
-    tags = forms.CharField(label='Tags (comma separated, maximum: 4)',
-                           required=False,
-                           max_length=43)
-    public = forms.BooleanField(label='Public', required=False)
+  #  tags = forms.CharField(label='Tags (comma separated, maximum: 4)',
+   #                        required=False,
+    #                       max_length=43)
+    #public = forms.BooleanField(label='Public', required=False)"""
 
 
 class RegisterForm(UserCreationForm):
@@ -26,3 +38,11 @@ class RegisterForm(UserCreationForm):
 class ResetPasswordForm(forms.Form):
     email = forms.EmailField(max_length=150, help_text='Required')
 
+
+class SelectForm(forms.Form):
+    OPTIONS = (
+        ("Oldest", "oldest"),
+        ("Newest", "newest"),
+        ("Popular", "popular"),
+    )
+    order = forms.ChoiceField(choices=OPTIONS)

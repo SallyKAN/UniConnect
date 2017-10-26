@@ -3,10 +3,10 @@ from django.http import (
     HttpResponseNotAllowed, HttpResponseRedirect, HttpResponse,
     HttpResponseForbidden, HttpResponseNotFound,
 )
-from .models import Notification, Tag, Post, User, UserForm, ProfileForm
-from .forms import TilForm, RegisterForm
+from .models import Notification, Tag, Post, User, UserForm, ProfileForm,Profile
+from .forms import TilForm, RegisterForm,SelectForm
 from .tokens import account_activation_token
-
+from  django_comments.models import Comment
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
@@ -18,7 +18,9 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_text
-
+from django.views.generic import DetailView, TemplateView
+from .serializers import PostSerializer,UserSerializer,ProfileSerializer,CommentSerializer
+from rest_framework import generics
 
 @login_required
 @transaction.atomic
@@ -46,15 +48,87 @@ def submit_profile(request):
 
 def update_profile(request, username):
     user = User.objects.get(username=username)
-    user.profile.bio = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit...'
+    posts = Post.objects.filter(author=user)
+    latest_tags = Tag.objects.filter(tagged__in=posts).distinct()
     user.save()
-    return render(request,'uniconnect_app/profile.html')
-
-
+    return render(request,'uniconnect_app/profile.html',{
+        'u': user,
+        'posts': posts,
+        'tags': latest_tags,
+    })
 def index(request):
     if not request.user.is_authenticated:
         latest_posts = Post.objects.filter(public=True).order_by('-post_date')
-        latest_tags = Tag.objects.filter(tags__in=latest_posts).distinct()
+        oldest_posts = Post.objects.filter(public=True).order_by('post_date')
+        latest_tags = Tag.objects.filter(tagged__in=latest_posts).distinct()
+        if request.method == 'GET':
+            select_form = SelectForm()
+        if request.method == 'POST':
+            select_form = SelectForm(request.POST)
+            if select_form.is_valid():
+                order = select_form.cleaned_data.get('order')
+                if order == 'Oldest':
+                    return render(
+                    request, 'uniconnect_app/index.html', {
+                             'posts':oldest_posts,
+                             'tags': latest_tags,
+                            'select_form': select_form
+                                })
+                elif order == 'Newest':
+                    return render(
+                    request, 'uniconnect_app/index.html', {
+                        'posts': latest_posts,
+                        'tags': latest_tags,
+                        'select_form': select_form
+                    })
+        return render(
+            request, 'uniconnect_app/index.html', {
+                'posts': oldest_posts,
+                'tags': latest_tags,
+                'select_form': select_form
+            })
+    else:
+        return HttpResponseRedirect('/me/')
+
+
+def me(request):
+    if request.user.is_authenticated:
+        latest_posts = Post.objects.order_by('-post_date')
+        oldest_posts = Post.objects.filter(public=True).order_by('post_date')
+        latest_tags = Tag.objects.filter(tagged__in=latest_posts).distinct()
+        if request.method == 'GET':
+            select_form = SelectForm()
+        if request.method == 'POST':
+            select_form = SelectForm(request.POST)
+            if select_form.is_valid():
+                order = select_form.cleaned_data.get('order')
+                if order == 'Oldest':
+                    return render(
+                    request, 'uniconnect_app/index.html', {
+                    'posts': oldest_posts,
+                    'tags': latest_tags,
+                    'select_form':select_form
+                })
+                elif order == 'Newest':
+                    return render(
+                        request, 'uniconnect_app/index.html', {
+                        'posts': latest_posts,
+                        'tags': latest_tags,
+                        'select_form': select_form
+                })
+        return render(
+            request, 'uniconnect_app/index.html', {
+                'posts': oldest_posts,
+                'tags': latest_tags,
+                'select_form': select_form
+            })
+    else:
+        return HttpResponseRedirect('/login/')
+"""""
+def index(request):
+    if not request.user.is_authenticated:
+        latest_posts = Post.objects.filter(public=True).order_by('-post_date')
+        latest_tags = Tag.objects.filter(tagged__in=latest_posts).distinct()
         return render(
             request, 'uniconnect_app/index.html', {
                 'posts': latest_posts,
@@ -76,6 +150,7 @@ def me(request):
             })
     else:
         return HttpResponseRedirect('/login/')
+"""
 
 
 def login_view(request):
@@ -202,6 +277,24 @@ def create_post(request):
         return HttpResponseNotAllowed('{0} Not allowed'.format(request.method))
 
 
+def update_post(request,post_id=None):
+    post = Post.objects.filter(id=post_id)
+    form = TilForm(request.POST or None, instance=post)
+    if request.POST and form.is_valid():
+        form = TilForm(instance=post)
+        form.save()
+    return render(
+        request, 'uniconnect_app/create_post.html', {
+            'form': form,
+        })
+def delete_post(request,post_id=None):
+    post = Post.objects.filter(id=post_id)[0]
+    form = TilForm(request.POST or None, instance=post)
+    if request.method == 'POST':
+        form.delete()
+    return redirect('/')
+
+
 def show_post(request, post_id=None):
     post = Post.objects.filter(id=post_id)[0]
     # if the post is not public, only viewable by the author
@@ -213,6 +306,18 @@ def show_post(request, post_id=None):
         'post': post,
         'tags': post_tags if len(post_tags) else None,
     })
+
+
+def search(request):
+    if request.method == 'GET':
+        search_query = request.GET.get('q')
+        search_posts = Post.objects.filter( Q(subject__icontains=search_query ) | Q(content__icontains=search_query ))
+
+        return render(
+            request, 'uniconnect_app/search.html',{
+             'search_posts': search_posts,
+             'search_query': search_query,
+            })
 
 
 def tag_view(request, tag):
@@ -245,3 +350,50 @@ def notifications(request):
         request, 'uniconnect_app/notifications.html', {
             'notifications': notifis
         })
+  #api view
+
+class PostCreateView(generics.ListCreateAPIView):
+    """This class defines the create behavior of our rest api."""
+
+    queryset =Post.objects.all()
+    serializer_class = PostSerializer
+    def perform_create(self, serializer):
+        """Save the post data when creating a new bucketlist."""
+        serializer.save()
+class PostDetailsView(generics.RetrieveUpdateDestroyAPIView):
+    """This class handles the http GET, PUT and DELETE requests."""
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+class UserCreateView(generics.ListCreateAPIView):
+    """This class defines the create behavior of our rest api."""
+    queryset =User.objects.all()
+    serializer_class = UserSerializer
+    def perform_create(self, serializer):
+        """Save the post data when creating a new bucketlist."""
+        serializer.save()
+class UserDetailsView(generics.RetrieveUpdateDestroyAPIView):
+    """This class handles the http GET, PUT and DELETE requests."""
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+class ProfileCreateView(generics.ListCreateAPIView):
+    """This class defines the create behavior of our rest api."""
+    queryset =Profile.objects.all()
+    serializer_class = ProfileSerializer
+    def perform_create(self, serializer):
+        """Save the post data when creating a new bucketlist."""
+        serializer.save()
+class ProfileDetailsView(generics.RetrieveUpdateDestroyAPIView):
+    """This class handles the http GET, PUT and DELETE requests."""
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+class CommentCreateView(generics.ListCreateAPIView):
+    """This class defines the create behavior of our rest api."""
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    def perform_create(self, serializer):
+        """Save the post data when creating a new bucketlist."""
+        serializer.save()
+class CommentDetailsView(generics.RetrieveUpdateDestroyAPIView):
+    """This class handles the http GET, PUT and DELETE requests."""
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer

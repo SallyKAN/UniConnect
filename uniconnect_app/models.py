@@ -54,10 +54,10 @@ class Tag(models.Model):
 class Post(models.Model):
     subject = models.CharField(max_length=160)
     content = models.CharField(max_length=800)
-    author = models.ForeignKey(User, related_name='user_author', on_delete=models.CASCADE)
     public = models.BooleanField(default=False)
     post_date = models.DateTimeField(auto_now_add=True)
     followers = models.ManyToManyField(User, related_name='user_followers')
+    author = models.ForeignKey(User, related_name='user_author', on_delete=models.CASCADE)
     tags = models.ManyToManyField(Tag, related_name="tagged")
 
 
