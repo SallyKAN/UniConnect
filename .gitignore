@@ -76,6 +76,7 @@ target/
 
 # pyenv
 .python-version
+.idea/workspace.xml
 
 # celery beat schedule file
 celerybeat-schedule
@@ -103,3 +104,5 @@ ENV/
 
 db.sqlite3
 # End of https://www.gitignore.io/api/python
+
+.idea
