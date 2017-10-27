@@ -1,12 +1,21 @@
 {% extends 'uniconnect_app/base.html' %}
+{% load calctags %}
 
 {% block content %}
     <div class="container-fluid">
         <div class="row">
             <h3>Notifications for {{user.username}}</h3>
-            {% for notification in notifications %}
-            <p><a href="/post/{{notification.post.id}}/">New comment on {{ notification.post.subject }}</a></p>
-            {%endfor %}
+            <table class="table">
+                <tbody>
+                {% for notification in notifications %}
+                    <tr>
+                        <td><p><a href="/post/{{notification.post.id}}/">New comment on {{ notification.post.subject }}</a></p></td>
+                        <td>Created {{current_time|subtract:notification.notif_date}} ago</td>
+                        <td><a href="/notifications/{{notification.id}}/delete/">[X]</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
 
     </div>

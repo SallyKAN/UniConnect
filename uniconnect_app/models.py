@@ -68,6 +68,7 @@ class Notification(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     text = models.CharField(max_length=36,default="New comment on a post you follow")
+    notif_date = models.DateTimeField(auto_now_add=True)
 
 
 

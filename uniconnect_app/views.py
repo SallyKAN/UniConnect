@@ -6,6 +6,7 @@ from django.http import (
 from .models import Notification, Tag, Post, User, UserForm, ProfileForm,Profile
 from .forms import TilForm, RegisterForm,SelectForm
 from .tokens import account_activation_token
+from datetime import datetime
 from  django_comments.models import Comment
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
@@ -21,13 +22,13 @@ from django.utils.encoding import force_bytes, force_text
 from django.views.generic import DetailView, TemplateView
 from .serializers import PostSerializer,UserSerializer,ProfileSerializer,CommentSerializer
 from rest_framework import generics
+import pytz
 from django.shortcuts import render_to_response, get_object_or_404
 from django_comments.views.moderation import perform_delete
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
-
 
 
 @login_required
@@ -351,11 +352,32 @@ def notifications(request):
     notifis = Notification.objects.filter(
             owner=request.user
     )
+    tz=pytz.timezone('Australia/Sydney')
     return render(
         request, 'uniconnect_app/notifications.html', {
-            'notifications': notifis
+            'notifications': notifis,
+            'current_time': datetime.now(tz=tz)
         })
+
+
+def delete_post(request,post_id=None):
+    post = Post.objects.filter(id=post_id)[0]
+    form = TilForm(request.POST or None, instance=post)
+    if request.method == 'POST':
+        form.delete()
+    return redirect('/')
+
+
+def delete_notification(request, notif_id=None):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect('/login/')
+    notification = Notification.objects.get(id=notif_id)
+    if notification.owner == request.user:
+        notification.delete()
+    return redirect('/notifications/')
+
     # REST api view.
+
 
 
 class PostCreateView(generics.ListCreateAPIView):
