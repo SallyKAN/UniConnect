@@ -15,12 +15,19 @@
     </h4>
         <p><i>Published on </i> {{ post.post_date }} </p>
     <p> {{post.content}} </p>
-    <a href="{% url 'follow-post' post.id %}">Follow</a>
+<button data-url="{% url 'follow-post' post.id %}"  class="follow-button" type="button">Follow</button>
+<script>
+    $('.follow-button').click(function() {
+    $.get($(this).data('url'), function(response) {
+        $('.message-section').text(response.message).show();
+    });
+});
+</script>
     {% if user == post.author %}
         <a class="confirm-delete" href="{% url 'delete-post' post.id %}">Delete</a>
         <script>
         $(document).on('click', '.confirm-delete', function(){
-            return confirm('Are you sure you want to delete this?');
+            return confirm('Are you sure you want to delete this post?');
         })
         </script>
     {% endif %}

@@ -21,7 +21,26 @@
         </div>
     {% endfor %}
     {% endif %}
+{% block javascript %}
+  <script>
+    $("#email").change(function () {
+      var email = $(this).val();
+      $.ajax({
+        url: '{% url "validate_email" %}',
+        data: {
+          'email': email
+        },
+        dataType: 'json',
+        success: function (data) {
+          if (data.is_taken) {
+            alert("A user with this email already exists.");
+          }
+        }
+      });
 
+    });
+  </script>
+{% endblock %}
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
