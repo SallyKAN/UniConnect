@@ -55,6 +55,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
+}
 ROOT_URLCONF = 'uniconnect.urls'
 
 TEMPLATES = [
@@ -84,9 +90,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'uniconnect',
         'USER': 'postgres',                      # Not used with sqlite3.
-        'PASSWORD': 'password123',                  # Not used with sqlite3.
+        'PASSWORD': '19961119',                  # Not used with sqlite3.
         'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '5433',
+        'PORT': '5432',
     }
 }
 

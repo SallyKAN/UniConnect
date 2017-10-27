@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django_comments.signals import comment_was_posted
-
+from django.core.urlresolvers import reverse
 
 class UserForm(forms.ModelForm):
     class Meta:
@@ -60,6 +60,9 @@ class Post(models.Model):
     author = models.ForeignKey(User, related_name='user_author', on_delete=models.CASCADE)
     tags = models.ManyToManyField(Tag, related_name="tagged")
 
+    def get_absolute_url(self):
+        return reverse('show-post', kwargs={'post_id': self.id})
+
 
 class Notification(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -67,10 +70,6 @@ class Notification(models.Model):
     text = models.CharField(max_length=36,default="New comment on a post you follow")
     notif_date = models.DateTimeField(auto_now_add=True)
 
-
-#class PostTag(models.Model):
- #   post = models.ForeignKey(Post)
-  #  tag = models.ForeignKey(Tag)
 
 
 comment_was_posted.connect(notify_followers)

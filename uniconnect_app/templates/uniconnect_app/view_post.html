@@ -12,17 +12,24 @@
         </i>
         {% endfor %}
         {% endif %}
-
     </h4>
         <p><i>Published on </i> {{ post.post_date }} </p>
     <p> {{post.content}} </p>
+    <a href="{% url 'follow-post' post.id %}">Follow</a>
+    {% if user == post.author %}
+        <a class="confirm-delete" href="{% url 'delete-post' post.id %}">Delete</a>
+        <script>
+        $(document).on('click', '.confirm-delete', function(){
+            return confirm('Are you sure you want to delete this?');
+        })
+        </script>
+    {% endif %}
     {% get_comment_count for post as comment_count %}
     <p>{{ comment_count }} comments have been posted.</p>
     {% render_comment_list for post %}
+
 </div>
-
     <!--<a href=  % url 'delete-post'%}>delete</a> -->
-
 <!-- A context variable called form is created with the necessary hidden
 fields, timestamps and security hashes -->
     {% if user.is_authenticated %}
@@ -30,14 +37,13 @@ fields, timestamps and security hashes -->
     <form action="{% comment_form_target %}" method="POST">
     {% csrf_token %}
     {{ form.comment }}
-
     {{ form.content_type }}
     {{ form.object_pk }}
     {{ form.timestamp }}
     {{ form.security_hash }}
-
-    <input type="hidden" name="next" value="/post/{{ post.id }}/"/>
+    <input type="hidden" name="next" value={% url 'show-post' post.id  %}>
     <input type="submit" value="Add comment" id="id_submit" />
+
     </form>
 {% else %}
     <p>Please <a href="{% url 'login' %}">log in</a> to leave a comment.</p>

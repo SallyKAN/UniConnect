@@ -23,6 +23,13 @@ from django.views.generic import DetailView, TemplateView
 from .serializers import PostSerializer,UserSerializer,ProfileSerializer,CommentSerializer
 from rest_framework import generics
 import pytz
+from django.shortcuts import render_to_response, get_object_or_404
+from django_comments.views.moderation import perform_delete
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.permissions import IsAdminUser
+
 
 @login_required
 @transaction.atomic
@@ -87,7 +94,7 @@ def index(request):
                     })
         return render(
             request, 'uniconnect_app/index.html', {
-                'posts': oldest_posts,
+                'posts': latest_posts,
                 'tags': latest_tags,
                 'select_form': select_form
             })
@@ -122,39 +129,12 @@ def me(request):
                 })
         return render(
             request, 'uniconnect_app/index.html', {
-                'posts': oldest_posts,
+                'posts': latest_posts,
                 'tags': latest_tags,
                 'select_form': select_form
             })
     else:
         return HttpResponseRedirect('/login/')
-"""""
-def index(request):
-    if not request.user.is_authenticated:
-        latest_posts = Post.objects.filter(public=True).order_by('-post_date')
-        latest_tags = Tag.objects.filter(tagged__in=latest_posts).distinct()
-        return render(
-            request, 'uniconnect_app/index.html', {
-                'posts': latest_posts,
-                'tags': latest_tags
-            })
-    else:
-        return HttpResponseRedirect('/me/')
-
-
-def me(request):
-    if request.user.is_authenticated:
-        latest_posts = Post.objects.order_by('-post_date')
-        latest_tags = Tag.objects.filter(tagged__in=latest_posts).distinct()
-        return render(
-            request, 'uniconnect_app/me.html', {
-                'user': request.user,
-                'posts': latest_posts,
-                'tags': latest_tags,
-            })
-    else:
-        return HttpResponseRedirect('/login/')
-"""
 
 
 def login_view(request):
@@ -279,24 +259,45 @@ def create_post(request):
         return HttpResponseNotAllowed('{0} Not allowed'.format(request.method))
 
 
-def update_post(request,post_id=None):
-    post = Post.objects.filter(id=post_id)
-    form = TilForm(request.POST or None, instance=post)
-    if request.POST and form.is_valid():
-        form = TilForm(instance=post)
-        form.save()
-    return render(
-        request, 'uniconnect_app/create_post.html', {
-            'form': form,
-        })
+def update_post(request, post_id=None):
+    if post_id:
+        post = get_object_or_404(Post, pk=post_id)
+        if request.method == 'GET':
+            print(post_id +'get')
+            form = TilForm(initial={'subject':post.subject,'content':post.content,'tags':str(post.tags) ,'public':post.public})
+            return render(
+                request, 'uniconnect_app/edit_post.html', {
+                'form': form,
+            })
+        elif request.method == 'POST':
+            print(post_id + 'post')
+            form = TilForm(request.POST)
+            post.subject = form.cleaned_data.get('subject')
+            post.content = form.cleaned_data.get('content')
+            post.public = form.cleaned_data.get('public')
+            post._do_update(post)
+        return HttpResponseRedirect('/post/' + str(post.id))
 
 
 def delete_post(request,post_id=None):
-    post = Post.objects.filter(id=post_id)[0]
-    form = TilForm(request.POST or None, instance=post)
-    if request.method == 'POST':
-        form.delete()
+    post = get_object_or_404(Post, pk=post_id)
+    post.delete()
     return redirect('/')
+
+def follow_post(request, post_id=None):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect('/login/')
+    post = get_object_or_404(Post, pk=post_id)
+    post.followers.add(request.user)
+    return HttpResponseRedirect(post.get_absolute_url())
+def delete_own_comment(request, comment_id):
+    comment = get_object_or_404(Comment, pk=comment_id)
+    if comment.user.id != request.user.id:
+        raise Http404
+    perform_delete(request, comment)
+    return http.HttpResponseRedirect(comment.content_object.get_absolute_url())
+    comment.save()
+
 
 
 def show_post(request, post_id=None):
@@ -315,7 +316,8 @@ def show_post(request, post_id=None):
 def search(request):
     if request.method == 'GET':
         search_query = request.GET.get('q')
-        search_posts = Post.objects.filter( Q(subject__icontains=search_query ) | Q(content__icontains=search_query ))
+        search_posts = Post.objects.filter(Q(subject__icontains=search_query ) | Q(content__icontains=search_query )
+                                           |Q(author__username__icontains=search_query) |Q(tags__tag__icontains=search_query))
 
         return render(
             request, 'uniconnect_app/search.html',{
@@ -374,51 +376,135 @@ def delete_notification(request, notif_id=None):
         notification.delete()
     return redirect('/notifications/')
 
-#api view
+    # REST api view.
+
 
 
 class PostCreateView(generics.ListCreateAPIView):
     """This class defines the create behavior of our rest api."""
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
 
-    queryset =Post.objects.all()
+    def get(self, request, format=None):
+        content = {
+            'user': str(request.user),  # `django.contrib.auth.User` instance.
+            'auth': str(request.auth),  # None
+        }
+        return Response(content)
+
+    queryset = Post.objects.all()
     serializer_class = PostSerializer
+
     def perform_create(self, serializer):
         """Save the post data when creating a new bucketlist."""
         serializer.save()
+
+
 class PostDetailsView(generics.RetrieveUpdateDestroyAPIView):
     """This class handles the http GET, PUT and DELETE requests."""
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+
+
 class UserCreateView(generics.ListCreateAPIView):
     """This class defines the create behavior of our rest api."""
-    queryset =User.objects.all()
-    serializer_class = UserSerializer
-    def perform_create(self, serializer):
-        """Save the post data when creating a new bucketlist."""
-        serializer.save()
-class UserDetailsView(generics.RetrieveUpdateDestroyAPIView):
-    """This class handles the http GET, PUT and DELETE requests."""
+    """Allows access only to admin users."""
+    permission_classes = (IsAdminUser,)
+
+    def has_permission(self, request, view):
+        return request.user and request.user.is_staff
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    def perform_create(self, serializer):
+        """Save the post data when creating a new bucketlist."""
+        serializer.save()
+
+
+class UserDetailsView(generics.RetrieveUpdateDestroyAPIView):
+    """This class handles the http GET, PUT and DELETE requests."""
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, format=None):
+        content = {
+            'user': str(request.user),  # `django.contrib.auth.User` instance.
+            'auth': str(request.auth),  # None
+        }
+        return Response(content)
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
 class ProfileCreateView(generics.ListCreateAPIView):
     """This class defines the create behavior of our rest api."""
-    queryset =Profile.objects.all()
-    serializer_class = ProfileSerializer
-    def perform_create(self, serializer):
-        """Save the post data when creating a new bucketlist."""
-        serializer.save()
-class ProfileDetailsView(generics.RetrieveUpdateDestroyAPIView):
-    """This class handles the http GET, PUT and DELETE requests."""
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, format=None):
+        content = {
+            'user': str(request.user),  # `django.contrib.auth.User` instance.
+            'auth': str(request.auth),  # None
+        }
+        return Response(content)
+
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-class CommentCreateView(generics.ListCreateAPIView):
-    """This class defines the create behavior of our rest api."""
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
+
     def perform_create(self, serializer):
         """Save the post data when creating a new bucketlist."""
         serializer.save()
+
+
+class ProfileDetailsView(generics.RetrieveUpdateDestroyAPIView):
+    """This class handles the http GET, PUT and DELETE requests."""
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, format=None):
+        content = {
+            'user': str(request.user),  # `django.contrib.auth.User` instance.
+            'auth': str(request.auth),  # None
+        }
+        return Response(content)
+
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+
+
+class CommentCreateView(generics.ListCreateAPIView):
+    """This class defines the create behavior of our rest api."""
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, format=None):
+        content = {
+            'user': str(request.user),  # `django.contrib.auth.User` instance.
+            'auth': str(request.auth),  # None
+        }
+        return Response(content)
+
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+    def perform_create(self, serializer):
+        """Save the post data when creating a new bucketlist."""
+        serializer.save()
+
+
 class CommentDetailsView(generics.RetrieveUpdateDestroyAPIView):
     """This class handles the http GET, PUT and DELETE requests."""
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, format=None):
+        content = {
+            'user': str(request.user),  # `django.contrib.auth.User` instance.
+            'auth': str(request.auth),  # None
+        }
+        return Response(content)
+
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
