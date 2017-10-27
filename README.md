@@ -1,9 +1,10 @@
-## Today I Learned - Demo application
+## UniConnect - Project web application
 
 
 Download the source code by using git:
 
 ```
+
 git clone https://github.com/amitsaha/til.git
 ```
 
