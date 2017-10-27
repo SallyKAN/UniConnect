@@ -6,6 +6,7 @@ from django.http import (
 from .models import Notification, Tag, Post, User, UserForm, ProfileForm,Profile
 from .forms import TilForm, RegisterForm,SelectForm
 from .tokens import account_activation_token
+from datetime import datetime
 from  django_comments.models import Comment
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
@@ -21,6 +22,7 @@ from django.utils.encoding import force_bytes, force_text
 from django.views.generic import DetailView, TemplateView
 from .serializers import PostSerializer,UserSerializer,ProfileSerializer,CommentSerializer
 from rest_framework import generics
+import pytz
 
 @login_required
 @transaction.atomic
@@ -197,7 +199,7 @@ def signup(request):
             user = form.save(commit=False)
             user.is_active = False
             user.save()
-            message = render_to_string('email/templates/activate_email.html', {
+            message = render_to_string('activate_email.html', {
                 'user': user,
                 'domain': '127.0.0.1:8000',
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
@@ -348,11 +350,31 @@ def notifications(request):
     notifis = Notification.objects.filter(
             owner=request.user
     )
+    tz=pytz.timezone('Australia/Sydney')
     return render(
         request, 'uniconnect_app/notifications.html', {
-            'notifications': notifis
+            'notifications': notifis,
+            'current_time': datetime.now(tz=tz)
         })
-  #api view
+
+
+def delete_post(request,post_id=None):
+    post = Post.objects.filter(id=post_id)[0]
+    form = TilForm(request.POST or None, instance=post)
+    if request.method == 'POST':
+        form.delete()
+    return redirect('/')
+
+
+def delete_notification(request, notif_id=None):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect('/login/')
+    notification = Notification.objects.get(id=notif_id)
+    if notification.owner == request.user:
+        notification.delete()
+    return redirect('/notifications/')
+
+#api view
 
 
 class PostCreateView(generics.ListCreateAPIView):
