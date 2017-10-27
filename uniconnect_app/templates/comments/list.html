@@ -1,0 +1,18 @@
+<dl id="comments">
+  {% for comment in comment_list %}
+    <dt id="c{{ comment.id }}">
+      {{ comment.submit_date }} - {{ comment.name }}
+    </dt>
+    <dd>
+      <p>{{ comment.comment }}</p>
+    </dd>
+      {% if user.is_authenticated and comment.user == user %}
+   <a class="confirm-delete" href="{% url 'delete_own_comment' comment.id %}">--delete this comment--</a>
+{% endif %}
+      <script>
+        $(document).on('click', '.confirm-delete', function(){
+            return confirm('Are you sure you want to delete this?');
+        })
+        </script>
+  {% endfor %}
+</dl>
