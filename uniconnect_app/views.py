@@ -23,6 +23,7 @@ from django.views.generic import DetailView, TemplateView
 from .serializers import PostSerializer,UserSerializer,ProfileSerializer,CommentSerializer
 from rest_framework import generics
 import pytz
+from django.db.models import Q
 from django.shortcuts import render_to_response, get_object_or_404
 from django_comments.views.moderation import perform_delete
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
@@ -287,9 +288,11 @@ def delete_post(request,post_id=None):
 def follow_post(request, post_id=None):
     if not request.user.is_authenticated:
         return HttpResponseRedirect('/login/')
-    post = get_object_or_404(Post, pk=post_id)
-    post.followers.add(request.user)
-    return HttpResponseRedirect(post.get_absolute_url())
+    elif request.is_ajax():
+        post = get_object_or_404(Post, pk=post_id)
+        post.followers.add(request.user)
+
+
 def delete_own_comment(request, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
     if comment.user.id != request.user.id:

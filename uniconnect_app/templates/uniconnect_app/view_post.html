@@ -15,11 +15,15 @@
     </h4>
         <p><i>Published on </i> {{ post.post_date }} </p>
     <p> {{post.content}} </p>
-<button data-url="{% url 'follow-post' post.id %}"  class="follow-button" type="button">Follow</button>
+<button data-url="{% url 'follow-post' post.id %}"  class="follow-button" type="button" id="{{ post.id }}">Follow</button>
 <script>
+    $.ready(function() {
     $('.follow-button').click(function() {
-    $.get($(this).data('url'), function(response) {
-        $('.message-section').text(response.message).show();
+        var $this = $(this);
+        var post_id = this.id;
+        $.post('/post/' + id + '/follow', function() {
+            $this.replaceWith("<span class='followed'>followed</span>");
+        });
     });
 });
 </script>

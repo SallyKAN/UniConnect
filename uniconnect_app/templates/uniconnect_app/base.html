@@ -21,9 +21,11 @@
     <nav class="navbar navbar-inverse" id="menu">
         <a class="navbar-brand" id="branding" href="/">UniConnect</a>
         <div id="searchform">
-         <input type="text" id="searchbox" name="searchbox" placeholder="Enter Search Term" >
-        <span id="searchbutton"> <a href="#"><span class="glyphicon glyphicon-search"></span></a></span>
-
+        <form id="searchform" action="{% url 'search-view' %}" method="get" accept-charset="utf-8">
+            <i class="fa fa-search"></i>
+            <input class="searchfield" id="searchbox" name="q" type="text" placeholder="Search">
+            <button  class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-search"></span>
+        </form>
         </div>
 
         <ul class="nav navbar-nav navbar-right" id="menubuttons">

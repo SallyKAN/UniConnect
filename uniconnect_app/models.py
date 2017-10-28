@@ -70,6 +70,4 @@ class Notification(models.Model):
     text = models.CharField(max_length=36,default="New comment on a post you follow")
     notif_date = models.DateTimeField(auto_now_add=True)
 
-
-
 comment_was_posted.connect(notify_followers)

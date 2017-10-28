@@ -1,0 +1,15 @@
+{% extends 'uniconnect_app/base.html' %}
+{% load comments %}
+
+{% block content %}
+    <h1>Seacrch Results for "{{ search_query }}" </h1>
+
+{% for post in search_posts %}
+                    {% get_comment_count for post as comment_count %}
+
+            <h3><a href="/post/{{post.id}}/">{{ post.subject }}</a></h3>
+                    <p>{{ post.author }}</p>
+                    <p>{{ comment_count }} comments</p>
+
+{%endfor %}
+{% endblock %}
