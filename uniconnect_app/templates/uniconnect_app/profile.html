@@ -5,7 +5,15 @@
 <div class="container">
     <div class="span3 well">
         <center>
-        <a href="#aboutModal" data-toggle="modal" data-target="#myModal"><img src="https://i.pinimg.com/736x/bf/b6/19/bfb6192a36bb33728209ac1040f2f574--pembroke-welsh-corgi-dog-training.jpg" name="aboutme" width="140" height="140" class="img-circle"></a>
+            {% if u.profile.profics == 1 %}
+            <a href="#aboutModal" data-toggle="modal" data-target="#myModal"><img src="https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Penguin-512.png" name="aboutme" width="140" height="140" class="img-circle"></a>
+            {% elif u.profile.profics == 2 %}
+            <a href="#aboutModal" data-toggle="modal" data-target="#myModal"><img src="https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Cat-512.png" name="aboutme" width="140" height="140" class="img-circle"></a>
+            {% elif u.profile.profics == 3 %}
+            <a href="#aboutModal" data-toggle="modal" data-target="#myModal"><img src="https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Rabbit-512.png" name="aboutme" width="140" height="140" class="img-circle"></a>
+            {% else %}
+            <a href="#aboutModal" data-toggle="modal" data-target="#myModal"><img src="https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Panda-512.png" name="aboutme" width="140" height="140" class="img-circle"></a>
+            {% endif %}
         <h3>{{u.username}}<small>{{u.profile.location}}</small></h3>
         <em>click my face for more</em>
 		</center>
@@ -20,7 +28,15 @@
                     </div>
                 <div class="modal-body">
                     <center>
-                    <img src="https://i.pinimg.com/736x/bf/b6/19/bfb6192a36bb33728209ac1040f2f574--pembroke-welsh-corgi-dog-training.jpg" name="aboutme" width="140" height="140" border="0" class="img-circle"></a>
+                        {% if u.profile.profics == 1 %}
+                        <img src="https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Penguin-512.png" name="aboutme" width="140" height="140" class="img-circle"></a>
+                        {% elif u.profile.profics == 2 %}
+                        <img src="https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Cat-512.png" name="aboutme" width="140" height="140" class="img-circle"></a>
+                        {% elif u.profile.profics == 3 %}
+                        <img src="https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Rabbit-512.png" name="aboutme" width="140" height="140" class="img-circle"></a>
+                        {% else %}
+                        <img src="https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Panda-512.png" name="aboutme" width="140" height="140" class="img-circle"></a>
+                        {% endif %}
                     <h3 class="media-heading">{{u.username}}<small>{{u.profile.location}}</small></h3>
                     <span><strong>Date Joined: </strong>{{u.profile.date_joined}}</span>
                     </center>
