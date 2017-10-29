@@ -3,6 +3,7 @@ from django.http import (
     HttpResponseNotAllowed, HttpResponseRedirect, HttpResponse,
     HttpResponseForbidden, HttpResponseNotFound,
 )
+import random
 from .models import Notification, Tag, Post, User, UserForm, ProfileForm,Profile
 from .forms import TilForm, RegisterForm,SelectForm
 from .tokens import account_activation_token
