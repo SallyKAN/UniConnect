@@ -19,11 +19,24 @@ class TilForm(forms.Form):
 
 
 class RegisterForm(UserCreationForm):
-    email = forms.EmailField(max_length=150, help_text='Required')
+    email = forms.EmailField(max_length=150, help_text='Required',)
 
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2')
+
+    def clean_email(self):
+        username = self.cleaned_data["username"]
+        email = self.cleaned_data['email']
+        users = User.objects.filter(email__iexact=email).exclude(username__iexact=username)
+        if users:
+            raise forms.ValidationError('A user with that email already exists.')
+        return email.lower()
+
+        # Always return a value to use as the new cleaned data, even if
+        # this method didn't change it.
+        return data
+
 
 
 class ResetPasswordForm(forms.Form):
