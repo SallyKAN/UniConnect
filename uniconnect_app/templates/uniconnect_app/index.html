@@ -4,7 +4,7 @@
     <div class="container-fluid">
     <div class="row">
         <div class="col-lg-1">
-            <p>Hello, {{user.username}}<small><a href="/submit/">(edit profile)</a></small></p>
+            <p>Hello, {{user.username}}<small><a href="/edit/profile">(edit profile)</a></small></p>
             <h3>Tags</h3>
             {% for tag in tags %}
                 <p><a href="/tag/{{tag.tag}}/">{{ tag.tag }}</a></p>

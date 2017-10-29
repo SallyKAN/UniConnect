@@ -67,6 +67,11 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse('show-post', kwargs={'post_id': self.id})
 
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ('subject', 'content', 'public')
+
 class Notification(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)

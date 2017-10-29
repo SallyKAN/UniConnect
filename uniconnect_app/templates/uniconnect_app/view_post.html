@@ -6,6 +6,7 @@
 
 <div class="container" style="width:40%">
     <h3>{{post.subject|title}}</h3>
+    <a href="/post/{{post.id}}/edit">edit</a>
     <h4>By <i>{{post.author.username}} </i></h4>
     {% if tags %}
     <h4>Tags: 
