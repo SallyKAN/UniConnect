@@ -115,6 +115,8 @@ def index(request):
                         'tags': latest_tags,
                         'select_form': select_form
                     })
+                elif order == 'Recommended':
+                    return HttpResponseRedirect('/login/')
         return render(
             request, 'uniconnect_app/index.html', {
                 'posts': latest_posts,
@@ -127,7 +129,15 @@ def index(request):
 
 def me(request):
     if request.user.is_authenticated:
+        posts = Post.objects.filter(author=request.user)
+        rec_posts = []
+        for post in posts:
+            tags = post.tags.all()
+            for tag in tags:
+                p = Post.objects.filter(tags=tag)
+                rec_posts.extend(p)
         latest_posts_all = Post.objects.filter(public=True).order_by('-post_date')
+        rec_posts = list(set(rec_posts))
         latest_posts_paginator = Paginator(latest_posts_all, 15)
         latest_posts_page = request.GET.get('page')
         try:
@@ -167,6 +177,13 @@ def me(request):
                     return render(
                         request, 'uniconnect_app/index.html', {
                             'posts': latest_posts,
+                            'tags': latest_tags,
+                            'select_form': select_form
+                        })
+                elif order == 'Recommended':
+                    return render(
+                        request, 'uniconnect_app/index.html', {
+                            'posts': rec_posts,
                             'tags': latest_tags,
                             'select_form': select_form
                         })

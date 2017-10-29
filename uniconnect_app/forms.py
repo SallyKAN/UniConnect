@@ -48,5 +48,6 @@ class SelectForm(forms.Form):
         ("Oldest", "oldest"),
         ("Newest", "newest"),
         ("Popular", "popular"),
+        ("Recommended", "recommended"),
     )
     order = forms.ChoiceField(choices=OPTIONS)
