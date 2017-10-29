@@ -22,7 +22,7 @@ class Profile(models.Model):
     uni = models.CharField(max_length=30, default='University of Sydney')
     year = models.CharField(max_length=10, default="3")
     profics = models.IntegerField(default = random.randint(0,1))
-    pict = models.CharField(max_length=30, blank=True)
+    profile_picture_link = models.CharField(max_length=150, blank=True)
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -46,7 +46,7 @@ def notify_followers(comment, request, **kwargs):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ('bio', 'location', 'uni', 'pict', 'year')
+        fields = ('bio', 'location', 'uni', 'profile_picture_link', 'year')
 
 
 class Tag(models.Model):
@@ -63,6 +63,7 @@ class Post(models.Model):
     followers = models.ManyToManyField(User, related_name='user_followers')
     author = models.ForeignKey(User, related_name='user_author', on_delete=models.CASCADE)
     tags = models.ManyToManyField(Tag, related_name="tagged")
+    picture_link = models.CharField(max_length=150, blank=True)
 
     def get_absolute_url(self):
         return reverse('show-post', kwargs={'post_id': self.id})
@@ -70,7 +71,7 @@ class Post(models.Model):
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ('subject', 'content', 'public')
+        fields = ('subject', 'content', 'public', 'picture_link')
 
 class Notification(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)

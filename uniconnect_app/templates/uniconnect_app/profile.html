@@ -5,7 +5,9 @@
 <div class="container">
     <div class="span3 well">
         <center>
-            {% if u.profile.profics == 1 %}
+            {% if u.profile.profile_picture_link %}
+            <a href="#aboutModal" data-toggle="modal" data-target="#myModal"><img src="{{u.profile.profile_picture_link}}" name="aboutme" width="140" height="140" class="img-circle"></a>
+            {% elif u.profile.profics == 1 %}
             <a href="#aboutModal" data-toggle="modal" data-target="#myModal"><img src="https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Penguin-512.png" name="aboutme" width="140" height="140" class="img-circle"></a>
             {% elif u.profile.profics == 2 %}
             <a href="#aboutModal" data-toggle="modal" data-target="#myModal"><img src="https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Cat-512.png" name="aboutme" width="140" height="140" class="img-circle"></a>
@@ -29,7 +31,9 @@
                     </div>
                 <div class="modal-body">
                     <center>
-                        {% if u.profile.profics == 1 %}
+                        {% if u.profile.profile_picture_link %}
+                        <img src="{{u.profile.profile_picture_link}}" name="aboutme" width="140" height="140" class="img-circle"></a>
+                        {% elif u.profile.profics == 1 %}
                         <img src="https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Penguin-512.png" name="aboutme" width="140" height="140" class="img-circle"></a>
                         {% elif u.profile.profics == 2 %}
                         <img src="https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Cat-512.png" name="aboutme" width="140" height="140" class="img-circle"></a>
