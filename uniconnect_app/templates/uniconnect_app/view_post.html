@@ -1,6 +1,7 @@
 {% extends 'uniconnect_app/base.html' %}
 {% load staticfiles %}
 {% load comments %}
+{% load i18n %}
 {% block content %}
 
 <div class="container" style="width:40%">
@@ -16,8 +17,38 @@
     </h4>
         <p><i>Published on </i> {{ post.post_date }} </p>
     <p> {{post.content}} </p>
-<button data-url="{% url 'follow-post' post.id %}"  class="follow-button" type="button" id="{{ post.id }}">Follow</button>
-<script href="{% static 'board/follow.js' %}"></script>
+
+<!--
+<form class="formFollowEvent">
+    {#% csrf_token %#}
+    <input type="hidden" value="{ post.id }}" name="post_id">
+    <button type="submit" class="btn btn-warning btn-block">
+        % if user in post.followers.all %}
+            % trans "Unfollow" %}
+         {#% else %#}
+            % trans "Follow" %}
+        {#% endif %#}</button>
+</form>
+<script>
+    $('.formFollowEvent').on('submit', function(e) {
+    e.preventDefault();
+
+    var $this = $(this);
+    var $button = $this.find('button[type="submit"]');
+    var post_id = $this.find('input[name="post_id"]').val();
+
+    $.ajax({
+        url:'post/'+post_id +'/follow/',
+        data: {
+            post_id: post_id
+        },
+        success:function(data){
+             $button.text((!data.following) ? {#% trans "Unfollow"%#} : {#% trans "Follow"%#});
+        }
+    })
+});
+</script>
+-->
     {% if user == post.author %}
         <a class="confirm-delete" href="{% url 'delete-post' post.id %}">Delete</a>
         <script>

@@ -30,6 +30,7 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
+from django.http import JsonResponse
 
 
 @login_required
@@ -288,20 +289,29 @@ def delete_post(request,post_id=None):
 def follow_post(request, post_id=None):
     if not request.user.is_authenticated:
         return HttpResponseRedirect('/login/')
-    elif request.is_ajax():
-        post = get_object_or_404(Post, pk=post_id)
-        post.followers.add(request.user)
-
+    post = get_object_or_404(Post, pk=post_id)
+    if request.user in post.followers:
+        post.followers.remove(request.user)
+        data = {'following': False}
+    post.followers.add(request.user)
+    data = {'following': True}
+    post.save()
+    return JsonResponse(data)
 
 def delete_own_comment(request, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
     if comment.user.id != request.user.id:
         raise Http404
     perform_delete(request, comment)
-    return http.HttpResponseRedirect(comment.content_object.get_absolute_url())
+    return HttpResponseRedirect(comment.content_object.get_absolute_url())
     comment.save()
-
-
+def comment_posted( request ):
+    if request.GET['c']:
+        comment_id, post_id = request.GET['c'].split(':')
+        post = Post.objects.get(pk=post_id)
+        if post:
+            return HttpResponseRedirect(post.get_absolute_url())
+    return HttpResponseRedirect("/")
 
 def show_post(request, post_id=None):
     post = Post.objects.filter(id=post_id)[0]
@@ -327,7 +337,6 @@ def search(request):
              'search_posts': search_posts,
              'search_query': search_query,
             })
-
 
 def tag_view(request, tag):
     t = Tag.objects.filter(tag=tag)
@@ -379,10 +388,9 @@ def delete_notification(request, notif_id=None):
         notification.delete()
     return redirect('/notifications/')
 
-    # REST api view.
 
 
-
+# REST api view.
 class PostCreateView(generics.ListCreateAPIView):
     """This class defines the create behavior of our rest api."""
     authentication_classes = (SessionAuthentication, BasicAuthentication)
