@@ -14,9 +14,10 @@
             {% else %}
             <a href="#aboutModal" data-toggle="modal" data-target="#myModal"><img src="https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Panda-512.png" name="aboutme" width="140" height="140" class="img-circle"></a>
             {% endif %}
-        <h3>{{u.username}}<small>{{u.profile.location}}</small></h3>
-        <em>click my face for more</em>
-		</center>
+            <h2>{{u.username}}</a><small>{{u.profile.location}}</small></h2>
+            <h3><small>{{u.profile.uni}}, Year {{u.profile.year}}</small></h3>
+            <em>click my face for more</em>
+        </center>
     </div>
     <!-- Modal -->
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
