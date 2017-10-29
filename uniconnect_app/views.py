@@ -32,7 +32,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from django.http import JsonResponse
-
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 @login_required
 @transaction.atomic
@@ -72,8 +72,28 @@ def update_profile(request, username):
 
 def index(request):
     if not request.user.is_authenticated:
-        latest_posts = Post.objects.filter(public=True).order_by('-post_date')
-        oldest_posts = Post.objects.filter(public=True).order_by('post_date')
+        latest_posts_all = Post.objects.filter(public=True).order_by('-post_date')
+        latest_posts_paginator = Paginator(latest_posts_all, 15)
+        latest_posts_page = request.GET.get('page')
+        try:
+            latest_posts = latest_posts_paginator.page(latest_posts_page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            latest_posts = latest_posts_paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            latest_posts = latest_posts_paginator.page(latest_posts_paginator.num_pages)
+        oldest_posts_all = Post.objects.filter(public=True).order_by('post_date')
+        oldest_posts_paginator = Paginator(oldest_posts_all, 15)
+        oldest_posts_page = request.GET.get('page')
+        try:
+            oldest_posts = oldest_posts_paginator.page(oldest_posts_page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            oldest_posts = oldest_posts_paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            oldest_posts = oldest_posts_paginator.page(oldest_posts_paginator.num_pages)
         latest_tags = Tag.objects.filter(tagged__in=latest_posts).distinct()
         if request.method == 'GET':
             select_form = SelectForm()
@@ -107,8 +127,28 @@ def index(request):
 
 def me(request):
     if request.user.is_authenticated:
-        latest_posts = Post.objects.order_by('-post_date')
-        oldest_posts = Post.objects.filter(public=True).order_by('post_date')
+        latest_posts_all = Post.objects.filter(public=True).order_by('-post_date')
+        latest_posts_paginator = Paginator(latest_posts_all, 15)
+        latest_posts_page = request.GET.get('page')
+        try:
+            latest_posts = latest_posts_paginator.page(latest_posts_page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            latest_posts = latest_posts_paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            latest_posts = latest_posts_paginator.page(latest_posts_paginator.num_pages)
+        oldest_posts_all = Post.objects.filter(public=True).order_by('post_date')
+        oldest_posts_paginator = Paginator(oldest_posts_all, 15)
+        oldest_posts_page = request.GET.get('page')
+        try:
+            oldest_posts = oldest_posts_paginator.page(oldest_posts_page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            oldest_posts = oldest_posts_paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            oldest_posts = oldest_posts_paginator.page(oldest_posts_paginator.num_pages)
         latest_tags = Tag.objects.filter(tagged__in=latest_posts).distinct()
         if request.method == 'GET':
             select_form = SelectForm()
@@ -118,18 +158,18 @@ def me(request):
                 order = select_form.cleaned_data.get('order')
                 if order == 'Oldest':
                     return render(
-                    request, 'uniconnect_app/index.html', {
-                    'posts': oldest_posts,
-                    'tags': latest_tags,
-                    'select_form':select_form
-                })
+                        request, 'uniconnect_app/index.html', {
+                            'posts': oldest_posts,
+                            'tags': latest_tags,
+                            'select_form': select_form
+                        })
                 elif order == 'Newest':
                     return render(
                         request, 'uniconnect_app/index.html', {
-                        'posts': latest_posts,
-                        'tags': latest_tags,
-                        'select_form': select_form
-                })
+                            'posts': latest_posts,
+                            'tags': latest_tags,
+                            'select_form': select_form
+                        })
         return render(
             request, 'uniconnect_app/index.html', {
                 'posts': latest_posts,
