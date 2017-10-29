@@ -4,7 +4,7 @@ from django.http import (
     HttpResponseForbidden, HttpResponseNotFound,
 )
 import random
-from .models import Notification, Tag, Post, User, UserForm, ProfileForm,Profile
+from .models import Notification, Tag, Post, User, UserForm, ProfileForm,Profile, PostForm
 from .forms import TilForm, RegisterForm,SelectForm
 from .tokens import account_activation_token
 from datetime import datetime
@@ -36,7 +36,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 @login_required
 @transaction.atomic
-def submit_profile(request):
+def edit_profile(request):
     if request.method == 'POST':
         user_form = UserForm(request.POST, instance=request.user)
         profile_form = ProfileForm(request.POST, instance=request.user.profile)
@@ -58,7 +58,7 @@ def submit_profile(request):
     })
 
 
-def update_profile(request, username):
+def profile(request, username):
     user = User.objects.get(username=username)
     posts = Post.objects.filter(author=user)
     latest_tags = Tag.objects.filter(tagged__in=posts).distinct()
@@ -318,25 +318,23 @@ def create_post(request):
     else:
         return HttpResponseNotAllowed('{0} Not allowed'.format(request.method))
 
-
-def update_post(request, post_id=None):
-    if post_id:
-        post = get_object_or_404(Post, pk=post_id)
-        if request.method == 'GET':
-            print(post_id +'get')
-            form = TilForm(initial={'subject':post.subject,'content':post.content,'tags':str(post.tags) ,'public':post.public})
-            return render(
-                request, 'uniconnect_app/edit_post.html', {
-                'form': form,
-            })
-        elif request.method == 'POST':
-            print(post_id + 'post')
-            form = TilForm(request.POST)
-            post.subject = form.cleaned_data.get('subject')
-            post.content = form.cleaned_data.get('content')
-            post.public = form.cleaned_data.get('public')
-            post._do_update(post)
-        return HttpResponseRedirect('/post/' + str(post.id))
+def edit_post(request, post_id):
+    post = Post.objects.get(pk=post_id)
+    if request.method == 'POST':
+        post_form = PostForm(request.POST, instance=post)
+        if post_form.is_valid():
+            post_form.save()
+            messages.success(request, ('Your profile was successfully updated!'))
+            u = request.user.username
+            url = reverse('profile', kwargs={'username': u})
+            return HttpResponseRedirect(url)
+        else:
+            messages.error(request, ('Please correct the error below.'))
+    else:
+        post_form = PostForm(instance=post)
+    return render(request, 'uniconnect_app/editposts.html', {
+        'form': post_form,
+    })
 
 
 def delete_post(request,post_id=None):

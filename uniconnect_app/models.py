@@ -16,9 +16,11 @@ class UserForm(forms.ModelForm):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    bio = models.TextField(max_length=500, blank=True)
-    location = models.CharField(max_length=30, blank=True)
-    birth_date = models.DateField(null=True, blank=True)
+    bio = models.TextField(max_length=500, default='Lorem ipsum dolor sit amet, consectetur adipiscing elit.')
+    location = models.CharField(max_length=30, default="AU")
+    date_joined = models.DateField(auto_now_add=True)
+    uni = models.CharField(max_length=30, default='University of Sydney')
+    year = models.CharField(max_length=10, default="3")
     profics = models.IntegerField(default = random.randint(0,1))
     pict = models.CharField(max_length=30, blank=True)
 
@@ -44,7 +46,7 @@ def notify_followers(comment, request, **kwargs):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ('bio', 'location', 'birth_date', 'pict')
+        fields = ('bio', 'location', 'uni', 'pict', 'year')
 
 
 class Tag(models.Model):
@@ -65,6 +67,10 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse('show-post', kwargs={'post_id': self.id})
 
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ('subject', 'content', 'public')
 
 class Notification(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
