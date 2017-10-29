@@ -94,7 +94,7 @@ def index(request):
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
             oldest_posts = oldest_posts_paginator.page(oldest_posts_paginator.num_pages)
-        latest_tags = Tag.objects.filter(tagged__in=latest_posts).distinct()
+        tags = Tag.objects.filter(tagged__in=latest_posts_all).distinct()
         if request.method == 'GET':
             select_form = SelectForm()
         if request.method == 'POST':
@@ -105,14 +105,14 @@ def index(request):
                     return render(
                     request, 'uniconnect_app/index.html', {
                              'posts':oldest_posts,
-                             'tags': latest_tags,
+                             'tags': tags,
                             'select_form': select_form
                                 })
                 elif order == 'Newest':
                     return render(
                     request, 'uniconnect_app/index.html', {
                         'posts': latest_posts,
-                        'tags': latest_tags,
+                        'tags': tags,
                         'select_form': select_form
                     })
                 elif order == 'Recommended':
@@ -120,7 +120,7 @@ def index(request):
         return render(
             request, 'uniconnect_app/index.html', {
                 'posts': latest_posts,
-                'tags': latest_tags,
+                'tags': tags,
                 'select_form': select_form
             })
     else:
@@ -159,7 +159,7 @@ def me(request):
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
             oldest_posts = oldest_posts_paginator.page(oldest_posts_paginator.num_pages)
-        latest_tags = Tag.objects.filter(tagged__in=latest_posts).distinct()
+        tags = Tag.objects.filter(tagged__in=latest_posts_all).distinct()
         if request.method == 'GET':
             select_form = SelectForm()
         if request.method == 'POST':
@@ -170,27 +170,27 @@ def me(request):
                     return render(
                         request, 'uniconnect_app/index.html', {
                             'posts': oldest_posts,
-                            'tags': latest_tags,
+                            'tags': tags,
                             'select_form': select_form
                         })
                 elif order == 'Newest':
                     return render(
                         request, 'uniconnect_app/index.html', {
                             'posts': latest_posts,
-                            'tags': latest_tags,
+                            'tags': tags,
                             'select_form': select_form
                         })
                 elif order == 'Recommended':
                     return render(
                         request, 'uniconnect_app/index.html', {
                             'posts': rec_posts,
-                            'tags': latest_tags,
+                            'tags': tags,
                             'select_form': select_form
                         })
         return render(
             request, 'uniconnect_app/index.html', {
                 'posts': latest_posts,
-                'tags': latest_tags,
+                'tags': tags,
                 'select_form': select_form
             })
     else:
@@ -348,13 +348,15 @@ def follow_post(request, post_id=None):
     if not request.user.is_authenticated:
         return HttpResponseRedirect('/login/')
     post = get_object_or_404(Post, pk=post_id)
-    if request.user in post.followers:
-        post.followers.remove(request.user)
-        data = {'following': False}
     post.followers.add(request.user)
-    data = {'following': True}
-    post.save()
-    return JsonResponse(data)
+    return HttpResponseRedirect('/post/' + str(post.id))
+
+def unfollow_post(request, post_id=None):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect('/login/')
+    post = get_object_or_404(Post, pk=post_id)
+    post.followers.remove(request.user)
+    return HttpResponseRedirect('/post/' + str(post.id))
 
 def delete_own_comment(request, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)

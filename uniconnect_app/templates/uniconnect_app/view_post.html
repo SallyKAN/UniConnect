@@ -6,7 +6,7 @@
 
 <div class="container" style="width:40%">
     <h3>{{post.subject|title}}</h3>
-    <h4>By <i>{{post.author.username}} </i></h4>
+    <h4>By <i><a href="/profile/{{post.author.username}}">{{post.author.username}}</a> </i></h4>
     {% if tags %}
     <h4>Tags: 
         {% for tag in tags %}
@@ -18,37 +18,19 @@
         <p><i>Published on </i> {{ post.post_date }} </p>
     <p> {{post.content}} </p>
 
-<!--
-<form class="formFollowEvent">
-    {#% csrf_token %#}
-    <input type="hidden" value="{ post.id }}" name="post_id">
-    <button type="submit" class="btn btn-warning btn-block">
-        % if user in post.followers.all %}
-            % trans "Unfollow" %}
-         {#% else %#}
-            % trans "Follow" %}
-        {#% endif %#}</button>
-</form>
-<script>
-    $('.formFollowEvent').on('submit', function(e) {
-    e.preventDefault();
 
-    var $this = $(this);
-    var $button = $this.find('button[type="submit"]');
-    var post_id = $this.find('input[name="post_id"]').val();
+    {% if user in post.followers.all %}
+        <a href="{% url 'unfollow-post' post.id %}">Unfollow
+        </a>
+    {% else %}
+        <a href="{% url 'follow-post' post.id %}">follow
+        </a>
+    {% endif %}
 
-    $.ajax({
-        url:'post/'+post_id +'/follow/',
-        data: {
-            post_id: post_id
-        },
-        success:function(data){
-             $button.text((!data.following) ? {#% trans "Unfollow"%#} : {#% trans "Follow"%#});
-        }
-    })
-});
-</script>
--->
+
+
+
+
     {% if user == post.author %}
         <a class="confirm-delete" href="{% url 'delete-post' post.id %}">Delete</a>
         <script>
@@ -82,5 +64,24 @@ fields, timestamps and security hashes -->
     <p>Please <a href="{% url 'login' %}">log in</a> to leave a comment.</p>
 {% endif %}
 
+{% endblock %}
+{% block javescript %}
+<script>
+    $('.formFollowEvent').on('submit', function(e) {
+    e.preventDefault();
+    var $this = $(this);
+    var $button = $this.find('button[type="submit"]');
+    var post_id = $this.find('input[name="post_id"]').val();
 
+    $.ajax({
+        url:'post/'+post_id +'/follow/',
+        data: {
+            post_id: post_id
+        },
+        success:function(data){
+             $button.text((!data.following) ? {% trans "Unfollow"%} : {% trans "Follow"%});
+        }
+    })
+});
+</script>
 {% endblock %}
