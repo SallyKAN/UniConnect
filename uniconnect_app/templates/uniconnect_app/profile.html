@@ -18,7 +18,7 @@
             {% else %}
             <a href="#aboutModal" data-toggle="modal" data-target="#myModal"><img src="https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Panda-512.png" name="aboutme" width="140" height="140" class="img-circle"></a>
             {% endif %}
-            <h2>{{u.username}}</a><small>{{u.profile.location}}</small></h2>
+            <h2>{{u.username}}<small>&nbsp;{{u.profile.location}}</small></h2>
             <h3><small>{{u.profile.uni}}, Year {{u.profile.year}}</small></h3>
             <em>click my face for more</em>
 		</center>
@@ -44,7 +44,7 @@
                         {% else %}
                         <img src="https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Panda-512.png" name="aboutme" width="140" height="140" class="img-circle"></a>
                         {% endif %}
-                    <h3 class="media-heading heading">{{u.username}}<small>{{u.profile.location}}</small></h3>
+                    <h3 class="media-heading heading">{{u.username}}<small>&nbsp;{{u.profile.location}}</small></h3>
                     <span><strong>Date Joined: </strong>{{u.profile.date_joined}}</span>
                     </center>
                     <hr>

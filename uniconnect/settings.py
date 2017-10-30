@@ -92,9 +92,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'uniconnect',
         'USER': 'postgres',                      # Not used with sqlite3.
-        'PASSWORD': 'password123',                  # Not used with sqlite3.
+        'PASSWORD': 'exodus101!',                  # Not used with sqlite3.
         'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '5432',
+        'PORT': '5433',
     }
 }
 
