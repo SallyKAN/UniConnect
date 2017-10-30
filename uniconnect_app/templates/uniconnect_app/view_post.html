@@ -21,7 +21,7 @@
         {% endif %}
     </div>
 
-<div class="post-content pv-content">{{post.content}}</div>
+<div class="post-content pv-content center">{{post.content}}</div>
     <div class="post-date ">Published on  {{ post.post_date }}
 
         <form class="formFollowEvent">
@@ -69,7 +69,7 @@
 
     <div class="comments">
     {% get_comment_count for post as comment_count %}
-    <p class="heading">{{ comment_count }} comments have been posted.</p>
+    <p class="heading">{{ comment_count }} comments </p>
 
     {% render_comment_list for post %}
     </div>
@@ -81,7 +81,7 @@ fields, timestamps and security hashes -->
     {% if user.is_authenticated %}
     {% get_comment_form for post as form %}
         <div class="box comments-box">
-    <form action="{% comment_form_target %}" method="POST" class="comments-form">
+    <form action="{% comment_form_target %}" method="POST" class="comments-form" >
      <h2 id="comment-heading">PLEASE ENTER COMMENT</h2>
     {% csrf_token %}
     {{ form.comment|add_class:"comment"}}<br>

@@ -1,13 +1,14 @@
+{% load humanize %}
 <dl id="comments">
   {% for comment in comment_list %}
     <dt id="c{{ comment.id }}">
-      {{ comment.submit_date }} - {{ comment.name }}
+      {{ now| timeuntil:comment.submit_date }} ago - <a href="/profile/{{user.username}}">{{ comment.name }}</a>
     </dt>
     <dd>
-      <p>{{ comment.comment }}</p>
+      <p>{{ comment.comment}}</p>
     </dd>
       {% if user.is_authenticated and comment.user == user %}
-   <a class="confirm-delete" href="{% url 'delete_own_comment' comment.id %}">--delete this comment--</a>
+   <a class="confirm-delete" href="{% url 'delete_own_comment' comment.id %}">delete</a>
 {% endif %}
       <script>
         $(document).on('click', '.confirm-delete', function(){
