@@ -6,7 +6,9 @@
 
 <div class="container" style="width:40%">
     <h3>{{post.subject|title}}</h3>
+    {% if user == post.author %}
     <a href="/post/{{post.id}}/edit">edit</a>
+    {% endif %}
     <h4>By <i>{{post.author.username}} </i></h4>
     <img src="{{post.picture_link}}" width="140" height=auto></a>
     {% if tags %}
@@ -78,6 +80,7 @@ fields, timestamps and security hashes -->
     {{ form.security_hash }}
     <input type="hidden" name="next" value={% url 'show-post' post.id  %}>
     <input type="submit" value="Add comment" id="id_submit" />
+
 
     </form>
 {% else %}

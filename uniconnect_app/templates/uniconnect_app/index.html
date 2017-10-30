@@ -1,5 +1,6 @@
 {% extends 'uniconnect_app/base.html' %}
 {% load comments %}
+ {% load humanize %}
 {% block content %}
     <div class="container-fluid">
     <div class="row">
@@ -10,7 +11,7 @@
                 <p><a href="/tag/{{tag.tag}}/">{{ tag.tag }}</a></p>
             {%endfor %}
         </div>
-        <div class="col-lg-11">
+        <div class="col-lg-10">
             <div class="container" style="width:40%">
                 <p><a href="/post/">Create a new post</a></p>
                 <h3>Recent posts</h3>
@@ -25,6 +26,8 @@
                     {% get_comment_count for post as comment_count %}
             <h3><a href="/post/{{post.id}}/">{{ post.subject }}</a></h3>
                     <p>{{ post.author }}</p>
+                    <p>{{ post.content|truncatewords:2 }}</p>
+                    <p>{{ now|timeuntil:post.post_date}} ago</p>
                     <p>{{ comment_count }} comments</p>
             {%endfor %}
              <div class="pagination">

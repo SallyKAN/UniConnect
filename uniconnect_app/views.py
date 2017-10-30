@@ -33,7 +33,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from django.http import JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+from datetime import datetime, timezone
 @login_required
 @transaction.atomic
 def edit_profile(request):
@@ -72,6 +72,7 @@ def profile(request, username):
 
 def index(request):
     if not request.user.is_authenticated:
+        now = datetime.now(timezone.utc)
         latest_posts_all = Post.objects.filter(public=True).order_by('-post_date')
         latest_posts_paginator = Paginator(latest_posts_all, 15)
         latest_posts_page = request.GET.get('page')
@@ -94,7 +95,7 @@ def index(request):
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
             oldest_posts = oldest_posts_paginator.page(oldest_posts_paginator.num_pages)
-        latest_tags = Tag.objects.filter(tagged__in=latest_posts).distinct()
+        tags = Tag.objects.filter(tagged__in=latest_posts_all).distinct()
         if request.method == 'GET':
             select_form = SelectForm()
         if request.method == 'POST':
@@ -105,14 +106,16 @@ def index(request):
                     return render(
                     request, 'uniconnect_app/index.html', {
                              'posts':oldest_posts,
-                             'tags': latest_tags,
+                             'tags': tags,
+                             'now':now,
                             'select_form': select_form
                                 })
                 elif order == 'Newest':
                     return render(
                     request, 'uniconnect_app/index.html', {
                         'posts': latest_posts,
-                        'tags': latest_tags,
+                        'tags': tags,
+                            'now': now,
                         'select_form': select_form
                     })
                 elif order == 'Recommended':
@@ -120,7 +123,8 @@ def index(request):
         return render(
             request, 'uniconnect_app/index.html', {
                 'posts': latest_posts,
-                'tags': latest_tags,
+                'tags': tags,
+                'now': now,
                 'select_form': select_form
             })
     else:
@@ -136,6 +140,7 @@ def me(request):
             for tag in tags:
                 p = Post.objects.filter(tags=tag)
                 rec_posts.extend(p)
+        now = datetime.now(timezone.utc)
         latest_posts_all = Post.objects.filter(public=True).order_by('-post_date')
         rec_posts = list(set(rec_posts))
         latest_posts_paginator = Paginator(latest_posts_all, 15)
@@ -159,7 +164,7 @@ def me(request):
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
             oldest_posts = oldest_posts_paginator.page(oldest_posts_paginator.num_pages)
-        latest_tags = Tag.objects.filter(tagged__in=latest_posts).distinct()
+        tags = Tag.objects.filter(tagged__in=latest_posts_all).distinct()
         if request.method == 'GET':
             select_form = SelectForm()
         if request.method == 'POST':
@@ -170,27 +175,31 @@ def me(request):
                     return render(
                         request, 'uniconnect_app/index.html', {
                             'posts': oldest_posts,
-                            'tags': latest_tags,
+                            'tags': tags,
+                            'now': now,
                             'select_form': select_form
                         })
                 elif order == 'Newest':
                     return render(
                         request, 'uniconnect_app/index.html', {
                             'posts': latest_posts,
-                            'tags': latest_tags,
+                            'tags': tags,
+                            'now': now,
                             'select_form': select_form
                         })
                 elif order == 'Recommended':
                     return render(
                         request, 'uniconnect_app/index.html', {
                             'posts': rec_posts,
-                            'tags': latest_tags,
+                            'tags': tags,
+                            'now': now,
                             'select_form': select_form
                         })
         return render(
             request, 'uniconnect_app/index.html', {
                 'posts': latest_posts,
-                'tags': latest_tags,
+                'tags': tags,
+                'now': now,
                 'select_form': select_form
             })
     else:
@@ -283,7 +292,7 @@ def create_post(request):
         latest_posts = Post.objects.filter(author=request.user).order_by('-post_date')[:5]
         return render(
             request, 'uniconnect_app/create_post.html', {
-                'form': form, 'posts': latest_posts
+                'form': form, 'posts': latest_posts,
             })
     elif request.method == 'POST':
         form = TilForm(request.POST)
@@ -359,6 +368,7 @@ def follow_post(request, post_id=None):
     post.save()
     return JsonResponse(data)
 
+
 def delete_own_comment(request, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
     if comment.user.id != request.user.id:
@@ -433,12 +443,6 @@ def notifications(request):
         })
 
 
-def delete_post(request,post_id=None):
-    post = Post.objects.filter(id=post_id)[0]
-    form = TilForm(request.POST or None, instance=post)
-    if request.method == 'POST':
-        form.delete()
-    return redirect('/')
 
 
 def delete_notification(request, notif_id=None):
@@ -496,15 +500,7 @@ class UserCreateView(generics.ListCreateAPIView):
 
 class UserDetailsView(generics.RetrieveUpdateDestroyAPIView):
     """This class handles the http GET, PUT and DELETE requests."""
-    authentication_classes = (SessionAuthentication, BasicAuthentication)
-    permission_classes = (IsAuthenticated,)
 
-    def get(self, request, format=None):
-        content = {
-            'user': str(request.user),  # `django.contrib.auth.User` instance.
-            'auth': str(request.auth),  # None
-        }
-        return Response(content)
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -531,16 +527,7 @@ class ProfileCreateView(generics.ListCreateAPIView):
 
 
 class ProfileDetailsView(generics.RetrieveUpdateDestroyAPIView):
-    """This class handles the http GET, PUT and DELETE requests."""
-    authentication_classes = (SessionAuthentication, BasicAuthentication)
-    permission_classes = (IsAuthenticated,)
 
-    def get(self, request, format=None):
-        content = {
-            'user': str(request.user),  # `django.contrib.auth.User` instance.
-            'auth': str(request.auth),  # None
-        }
-        return Response(content)
 
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
@@ -567,16 +554,7 @@ class CommentCreateView(generics.ListCreateAPIView):
 
 
 class CommentDetailsView(generics.RetrieveUpdateDestroyAPIView):
-    """This class handles the http GET, PUT and DELETE requests."""
-    authentication_classes = (SessionAuthentication, BasicAuthentication)
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request, format=None):
-        content = {
-            'user': str(request.user),  # `django.contrib.auth.User` instance.
-            'auth': str(request.auth),  # None
-        }
-        return Response(content)
+    
 
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
