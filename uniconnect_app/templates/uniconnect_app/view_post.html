@@ -20,37 +20,37 @@
         <p><i>Published on </i> {{ post.post_date }} </p>
     <p> {{post.content}} </p>
 
-<!--
+
 <form class="formFollowEvent">
-    {#% csrf_token %#}
-    <input type="hidden" value="{ post.id }}" name="post_id">
+    {% csrf_token %}
+    <input type="hidden" value="{{ post.id }}" name="post_id">
     <button type="submit" class="btn btn-warning btn-block">
-        % if user in post.followers.all %}
-            % trans "Unfollow" %}
-         {#% else %#}
-            % trans "Follow" %}
-        {#% endif %#}</button>
+        {% if user in post.followers.all %}
+            {% trans "Unfollow" %}
+         {% else %}
+            {% trans "Follow" %}
+        {% endif %}</button>
 </form>
 <script>
     $('.formFollowEvent').on('submit', function(e) {
     e.preventDefault();
 
     var $this = $(this);
-    var $button = $this.find('button[type="submit"]');
+    var button = $this.find('button[type="submit"]');
     var post_id = $this.find('input[name="post_id"]').val();
 
     $.ajax({
-        url:'post/'+post_id +'/follow/',
+        url: "follow/",
         data: {
             post_id: post_id
         },
         success:function(data){
-             $button.text((!data.following) ? {#% trans "Unfollow"%#} : {#% trans "Follow"%#});
+             button.text((data.following) ? "Unfollow" : "Follow");
         }
     })
 });
 </script>
--->
+
     {% if user == post.author %}
         <a class="confirm-delete" href="{% url 'delete-post' post.id %}">Delete</a>
         <script>

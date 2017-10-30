@@ -343,15 +343,19 @@ def delete_post(request,post_id=None):
     post.delete()
     return redirect('/')
 
+
 def follow_post(request, post_id=None):
     if not request.user.is_authenticated:
         return HttpResponseRedirect('/login/')
     post = get_object_or_404(Post, pk=post_id)
-    if request.user in post.followers:
+    if request.user in post.followers.all():
         post.followers.remove(request.user)
         data = {'following': False}
-    post.followers.add(request.user)
-    data = {'following': True}
+        print(str(request.user.id) + " no longer following " + str(post.id))
+    else:
+        post.followers.add(request.user)
+        data = {'following': True}
+        print(str(request.user.id) + " following " + str(post.id))
     post.save()
     return JsonResponse(data)
 
