@@ -36,7 +36,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datetime import datetime, timezone
 @login_required
 @transaction.atomic
-def edit_profile(request):
+@login_required
+@transaction.atomic
+def submit_profile(request):
     if request.method == 'POST':
         user_form = UserForm(request.POST, instance=request.user)
         profile_form = ProfileForm(request.POST, instance=request.user.profile)
@@ -58,7 +60,7 @@ def edit_profile(request):
     })
 
 
-def profile(request, username):
+def update_profile(request, username):
     user = User.objects.get(username=username)
     posts = Post.objects.filter(author=user)
     latest_tags = Tag.objects.filter(tagged__in=posts).distinct()
@@ -205,6 +207,23 @@ def me(request):
     else:
         return HttpResponseRedirect('/login/')
 
+def edit_post(request, post_id):
+    post = Post.objects.get(pk=post_id)
+    if request.method == 'POST':
+        post_form = PostForm(request.POST, instance=post)
+        if post_form.is_valid():
+            post_form.save()
+            messages.success(request, ('Your post has been successfully updated!'))
+            u = post_id
+            url = reverse('show-post', kwargs={'post_id': u})
+            return HttpResponseRedirect(url)
+        else:
+            messages.error(request, ('Please correct the error below.'))
+    else:
+        post_form = PostForm(instance=post)
+    return render(request, 'uniconnect_app/editposts.html', {
+        'form': post_form,
+    })
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -292,14 +311,13 @@ def create_post(request):
         latest_posts = Post.objects.filter(author=request.user).order_by('-post_date')[:5]
         return render(
             request, 'uniconnect_app/create_post.html', {
-                'form': form, 'posts': latest_posts,
+                'form': form, 'posts': latest_posts
             })
     elif request.method == 'POST':
         form = TilForm(request.POST)
         if form.is_valid():
             p = Post(
                 subject=form.cleaned_data.get('subject'),
-                picture_link=form.cleaned_data.get('picture_link'),
                 content=form.cleaned_data.get('content'),
                 author=request.user,
                 public=form.cleaned_data.get('public'),
@@ -328,30 +346,11 @@ def create_post(request):
     else:
         return HttpResponseNotAllowed('{0} Not allowed'.format(request.method))
 
-def edit_post(request, post_id):
-    post = Post.objects.get(pk=post_id)
-    if request.method == 'POST':
-        post_form = PostForm(request.POST, instance=post)
-        if post_form.is_valid():
-            post_form.save()
-            messages.success(request, ('Your post has been successfully updated!'))
-            u = post_id
-            url = reverse('show-post', kwargs={'post_id': u})
-            return HttpResponseRedirect(url)
-        else:
-            messages.error(request, ('Please correct the error below.'))
-    else:
-        post_form = PostForm(instance=post)
-    return render(request, 'uniconnect_app/editposts.html', {
-        'form': post_form,
-    })
-
 
 def delete_post(request,post_id=None):
     post = get_object_or_404(Post, pk=post_id)
     post.delete()
     return redirect('/')
-
 
 def follow_post(request, post_id=None):
     if not request.user.is_authenticated:
@@ -376,6 +375,7 @@ def delete_own_comment(request, comment_id):
     perform_delete(request, comment)
     return HttpResponseRedirect(comment.content_object.get_absolute_url())
     comment.save()
+
 def comment_posted( request ):
     if request.GET['c']:
         comment_id, post_id = request.GET['c'].split(':')
@@ -408,6 +408,7 @@ def search(request):
              'search_posts': search_posts,
              'search_query': search_query,
             })
+
 
 def tag_view(request, tag):
     t = Tag.objects.filter(tag=tag)
@@ -445,6 +446,7 @@ def notifications(request):
 
 
 
+
 def delete_notification(request, notif_id=None):
     if not request.user.is_authenticated:
         return HttpResponseRedirect('/login/')
@@ -453,9 +455,10 @@ def delete_notification(request, notif_id=None):
         notification.delete()
     return redirect('/notifications/')
 
+    # REST api view.
 
 
-# REST api view.
+
 class PostCreateView(generics.ListCreateAPIView):
     """This class defines the create behavior of our rest api."""
     authentication_classes = (SessionAuthentication, BasicAuthentication)
@@ -527,6 +530,7 @@ class ProfileCreateView(generics.ListCreateAPIView):
 
 
 class ProfileDetailsView(generics.RetrieveUpdateDestroyAPIView):
+    """This class handles the http GET, PUT and DELETE requests."""
 
 
     queryset = Profile.objects.all()
@@ -554,7 +558,8 @@ class CommentCreateView(generics.ListCreateAPIView):
 
 
 class CommentDetailsView(generics.RetrieveUpdateDestroyAPIView):
-    
+    """This class handles the http GET, PUT and DELETE requests."""
+
 
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer

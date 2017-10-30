@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django_comments',
     'django.contrib.postgres',
     'django.contrib.humanize',
+    'widget_tweaks',
     'rest_framework',
 ]
 
@@ -91,9 +92,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'uniconnect',
         'USER': 'postgres',                      # Not used with sqlite3.
-        'PASSWORD': '19961119',                  # Not used with sqlite3.
+        'PASSWORD': 'password123',                  # Not used with sqlite3.
         'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '5433',
+        'PORT': '5432',
     }
 }
 

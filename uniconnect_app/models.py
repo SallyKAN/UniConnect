@@ -21,7 +21,7 @@ class Profile(models.Model):
     date_joined = models.DateField(auto_now_add=True)
     uni = models.CharField(max_length=30, default='University of Sydney')
     year = models.CharField(max_length=10, default="3")
-    profics = models.IntegerField(default = random.randint(0,1))
+    profics = models.IntegerField(default=random.randint(0, 1))
     profile_picture_link = models.CharField(max_length=150, blank=True)
 
 @receiver(post_save, sender=User)
@@ -68,10 +68,6 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse('show-post', kwargs={'post_id': self.id})
 
-class PostForm(forms.ModelForm):
-    class Meta:
-        model = Post
-        fields = ('subject', 'content', 'public', 'picture_link')
 
 class Notification(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -80,3 +76,8 @@ class Notification(models.Model):
     notif_date = models.DateTimeField(auto_now_add=True)
 
 comment_was_posted.connect(notify_followers)
+
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ('subject', 'content', 'public', 'picture_link')

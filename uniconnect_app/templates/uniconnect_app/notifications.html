@@ -2,16 +2,18 @@
 {% load calctags %}
 
 {% block content %}
-    <div class="container-fluid">
+    <div class="container-fluid page-outer">
         <div class="row">
-            <h3>Notifications for {{user.username}}</h3>
-            <table class="table">
+            <h3 class="heading index-heading">Notifications for {{user.username}}</h3>
+            <table class="table notifications-box">
                 <tbody>
                 {% for notification in notifications %}
                     <tr>
                         <td><p><a href="/post/{{notification.post.id}}/">New comment on {{ notification.post.subject }}</a></p></td>
                         <td>Created {{current_time|subtract:notification.notif_date}} ago</td>
-                        <td><a href="/notifications/{{notification.id}}/delete/">[X]</a></td>
+                        <td><a href="/notifications/{{notification.id}}/delete/">
+                            <span class="glyphicon glyphicon-remove-sign"></span>
+                        </a></td>
                     </tr>
                 {% endfor %}
                 </tbody>

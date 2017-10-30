@@ -1,100 +1,502 @@
-.container-fluid{
+/************************************************************************************************/
+/***                 Table of Contents               ****/
+/************************************************************************************************/
+
+
+/*
+
+Section 1
+
+1. Browswer Overrides and Other v.Important elements that cannot be changed
+2. Navbar.html
+3. Superclasses used throughout
+
+Section 2 - Pages
+1. login.html
+2.
+3.
+4
+
+ */
+
+
+
+/************************************************************************************************/
+/*1. Browswer Overrides and Other v.Important elements that cannot be changed */
+/************************************************************************************************/
+
+
+/* relates to DJANGO-COMMENTS External Library for the purpose of hiding a field*/
+#id_honeypot {
+    display: none;
+}
+
+
+
+html,body{
+
+    height:100%;
     margin: 0;
-    padding:0;
+    padding: 0;
 
 }
 
+/* CSS Override for form field labels*/
+form>p>label{
+    color: black;
+    font-family: 'Saira Extra Condensed', sans-serif;
+    font-size: 20px;
+    margin-right: 5px;
+    width:100px;
+}
 
-#menu{
-    /*Navigation Bar*/
-    background-color: whitesmoke; /*change default bootstrap*/
-    border-color: white; /*change default bootstrap*/
-    font-family: 'Josefin Sans', sans-serif; /*google font*/
+form>p>input{
+    color: black;
+    font-family: 'Saira Extra Condensed', sans-serif;
+    font-size: 20px;
+}
 
-    -webkit-border-radius: 0; /*change default bootstrap*/
-    -moz-border-radius: 0; /*change default bootstrap*/
-    border-radius: 0; /*change default bootstrap*/
 
-    padding-left: 10px;
-    padding-right: 10px;
-    max-height: 75px;
+.panel{
+   margin: 0;
+    padding: 0;
+
+
+}
+
+.float-left{
+    float:left;
+}
+
+.float-right{
+    float:right;
+}
+
+
+
+/*class located on base.html at bottom*/
+/* provide uniform outer shell for each template */
+/*settings are designed to ensure they scroll for as long as page length*/
+.outer{
+
+
+    overflow: scroll;
+    padding: 2%;
+   background-color: #fdfdfd;
+    margin-top: 0;
+
+
+}
+
+.panel{
+    width: 80%;
+    margin: 5%;
+}
+
+
+
+
+
+/*2. CSS Relating to the Navbar*/
+/************************************************************************************************/
+
+.navbar{
+    background-color: white;
+    margin-top: 0;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-bottom: 0;
+
+
+}
+
+.navbar-header{
+    color: black;
+}
+
+.navbar-brand{
+    color: black;
     margin: 0;
+    font-family: 'Ultra', serif; /*google font import on base.html*/
+    font-size: 25px;
+}
+
+.navbar-brand:hover{
+
+    background-color: lightgreen;
+    color: black;
+}
+
+.navbar-nav>li>a{
+    color: black;
+
+}
+
+
+.navbar-nav>li>a:hover{
+    background-color:lightgreen ;
+    color: black;
+
+}
+
+/*3. CSS Superclasses*/
+/************************************************************************************************/
+
+
+/* represent the out border of pages where data entry (ie profile change, login) is required*/
+.box{
+
+    background-color: #fdfdfd;
+    text-align: center;
+    border-radius: 10px;
+    border-color: darkslategrey;
+    border-style: solid;
+    border-width: medium;
 
 
 }
 
-#branding{
-    /*logo*/
 
-    color: #000000;
-    font-family: 'Kaushan Script', cursive; /*google font*/
-    font-size: 40px;
+
+
+/* represent the outer border for pages without data entry such as index*/
+.page-outer{
+
+ background-color: #fdfdfd;
+
 }
 
-/*css for right navbar options*/
-#menubuttons{
+.page-section{
+
+}
+
+
+.heading{
+
+    color: black;
+    font-family: 'Saira Extra Condensed', sans-serif;
+    font-size: 30px;
+    padding-bottom: 20px;
+
+}
+
+
+.subheading{
+     font-size: 25px;
+
+
+    border-top: solid slategray 1px;
+
+}
+
+/* must be used in conjunction with the default class btn-primary*/
+.box-btn{
+
+    font-family: 'Saira Extra Condensed', sans-serif; /* google font import */
+    font-size: 20px;
+    background-color:slategray;
+    color: white;
+    border-color: transparent;
+    border-radius: 10px;
+    width: 100px;
+    padding-top:10px;
+
+
+}
+
+
+.btn-grp{
+    text-align: center;
+    width: 100%;
+}
+
+
+.post-content{
+
+    font-size: 15px;
+    font-family: "Century Gothic";
+
+
+
+
+}
+
+.post-title{
+     padding-top: 20px;
+    padding-bottom: 20px;
+
+}
+
+.author{
+
+
+    font-style: italic;
+    font-family: "Century Gothic";
+    font-size: small;
+
+}
+
+.post-date{
+
+         font-family: "Century Gothic";
+    font-size: small;
+
+    padding-top: 10px;
+     padding-bottom: 30px;
+      border-bottom: solid slategray 2px;
+
+
+}
+
+.background{
+    width: 100%;
+    margin-bottom: 50px;
+}
+
+/*****************************************************************************************************/
+/********* Page Specific ***********************/
+/*****************************************************************************************************/
+
+/*1. login.html*/
+/************************************************************************************************/
+
+.login-box{
+
     position: relative;
-    top:-40px;
-    margin: 5px;
-    font-size:20px;
-        background-color: whitesmoke;
-    border: 2px transparent;
-    border-radius: 5px;
-    -webkit-transition-duration: 1s; /* Safari */
-    transition-duration: 1s;
-}
-
-#menubuttons>li:hover{
-    background-color: black;
-
-    
-}
-#menubuttons>li>a{
-
-    color: #000000;
-
+    width:30%;
+    top:20%;
+    left:35%;
+    padding:2%;
 
 
 }
 
+/*2. create_post.html*/
+/************************************************************************************************/
+
+.cp-box{
+
+    position: relative;
+    width:95%;
+    top:2%;
+    left:2%;
+    padding:2%;
+
+
+}
 
 
 
-#menubuttons>li>a:hover{
+.cp-form{
+    text-align: left;
+}
+.cp-field{
+
+    font-family: 'Saira Extra Condensed', sans-serif; /* google font import */
+    font-size: 15px;
+}
+
+.cp-field>input{
+
+
+    font-family: 'Saira Extra Condensed', sans-serif; /* google font import */
+    font-size: 15px;
+
+
+}
+
+.cp-field>textarea{
+
+
+    font-family: 'Saira Extra Condensed', sans-serif; /* google font import */
+    font-size: 15px;
+}
+
+
+
+.cp-label{
+    margin: 0;
+    padding: 0;
+    font-family: 'Saira Extra Condensed', sans-serif; /* google font import */
+    font-size: 20px;
+
+}
+
+
+/*3. index.html and me.html which inherits from...*/
+/************************************************************************************************/
+
+
+.index-heading{
+   width: 100%;
+   color: white;
+    text-align: center;
+    padding: 10px;
+    background-color: slategray;
+
+}
+
+.nav-index{
+
+
+
+    background-color:#fdfdfd;
+    border-color: #fdfdfd;
+  width: 100%;
+margin-left: auto;
+    margin-right: auto;
+
+
+}
+
+.nav-index-list{
 
     color: white;
 
 
-}
-
-#searchbutton{
-
-    color: #000000;
-    padding:8px;
-    background-color:red;
-    font-size:15px;
-}
-
-#searchbutton:hover{
-    color: red;
-    background-color: #000000;
-}
-
-
-input[type=text], select {
-    margin-top: 10px;
-    height: 35px;
-    width: 500px;
-    margin-left: 75px;
-
 
 }
 
-.loginstatus{
+.index-row{
+    padding: 0;
+    margin: 0;
+}
+
+.tag-list{
+    padding: 10px;
+}
+.tag-list>span{
+    font-family: "Century Gothic";
+    color: slategray;
+
+}
+
+.tag-list>a{
+    font-family: "Century Gothic";
+    color: slategray;
+
+}
+
+/*4. Notifications.html/
+/************************************************************************************************/
+
+
+.notifications-box{
+    border:none;
+    text-align:left;
+    width: 40%;
+    margin-left: 30%;
+}
+
+.notifications-content>a{
+    text-decoration: none;
+    color: black;
+
+}
+
+.notifications-content>a>span{
+     color: black;
+
+}
+
+
+/*4. Password Complete.html/
+/************************************************************************************************/
+
+pw-complete-box{
+        position: relative;
+    width:40%;
+    top:2%;
+    left:2%;
+    padding:2%;
+
+
+}
+
+/*5. Signup.html */
+/*************************************************************************************************/
+
+
+.signup-box{
+         position: relative;
+    width:80%;
+    top:2%;
+    left:2%;
+    padding:2%;
+    text-align: left;
+
+}
+
+.sort-box{
+    margin-bottom: 1%;
+}
+
+
+
+/*6. Profile.html */
+/*************************************************************************************************/
+
+.profile-post{
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* View Post.htm */
+/*************************************************************************************************/
+
+
+.pv-header{
+    margin-left: 4%;
+  float:left;
+    position: relative;
+    top: 10%;
+
+}
+
+
+.pv-content{
+    margin-top: 5%;
+width: 100%;
+    padding: 0%;
+
+}
+
+.comments{
+      width: 50%;
+    border: none;
+    margin-left: 15%;
+     font-family: "Century Gothic";
+}
+
+.comments-box{
+   width: 50%;
+    border: none;
+    padding: 0;
+
+    background-color: #fdfdfd;
+
+
+}
+
+
+
+
+#comments_count {
     font-size: 15px;
-    padding:10px;
+    color: black;
+    font-family: "Century Gothic";
+    font-style: italic;
 
 }
-#id_honeypot {
-    display: none;
+
+#comment-heading{
+    font-family: 'Saira Extra Condensed', sans-serif;
+    font-size: 30px;
+
+
+}
+
+.pv-login{
+    margin-left:2%;
 }

@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ('id', 'bio', 'location', 'date_joined','uni','year')
+        fields = ('id', 'bio', 'location','uni','year', 'user_id')
         read_only_fields = ('id', 'user_id')
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:

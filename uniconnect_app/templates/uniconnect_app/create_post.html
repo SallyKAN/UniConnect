@@ -2,27 +2,56 @@
 {% load bootstrap3 %}
 
 {% block content %}
-<div class="container">
-  <div class="jumbotron">
-    <h1>Create your post</h1>
-    </div>
-</div>
-<div class="container" style="width:40%">
-<form action="/post/" method="post" class="form">
-    {% csrf_token %}
-    {% bootstrap_form form %}
-    {% buttons %}
-    <button type="submit" class="btn btn-primary">
-      {% bootstrap_icon "star" %} Post
-    </button>
-    {% endbuttons %} 
-</form>
-</div>
 
-<div class="container" style="width:40%">
-<h3>Your recent posts</h3> 
-{% for post in posts %}
-<p><a href="/post/{{post.id}}/">{{ post.subject }}</a></p>
-{%endfor %}
-</div>
+
+
+
+
+    <!--django-bootstrap3 template - use of individual fields - changed from original template-->
+    <!-- Headers are from forms.py tilform -->
+    <!-- class are defined in settings.py and follow the bootstrap flex-box model as this affects layout changes need to be made
+   there and also in style.css-->
+
+
+    <div class="box cp-box">
+
+     <div class="heading">CREATE NEW POST</div>
+
+
+
+    <form role="form" method="post"  class="cp-form" >
+
+
+
+
+        {% csrf_token %}
+        {% bootstrap_field form.public layout='horizontal' size='lg' placeholder="" field_class="cp-field"   %}
+        {% bootstrap_form_errors form type='non_fields' %}
+
+        {% bootstrap_field form.subject layout='horizontal' label_size='md' placeholder="Subject" field_class="cp-field" label_class="cp-label"%}
+
+        {% bootstrap_field form.content layout='horizontal' size='md' placeholder="Message" field_class="cp-field" label_class="cp-label"%}
+
+        {% bootstrap_field form.tags layout='horizontal'   size='md' placeholder="Tags - Seperate by Commas, Max 4 Allowed"  field_class="cp-field" label_class="cp-label"%}
+
+
+
+
+     {% buttons %}
+    <div class="btn-grp">
+    <button type="submit" class="btn btn-primary post-button box-btn">
+      {% bootstrap_icon "ok" %}  Save Post
+    </button>
+     <button type="reset" class="btn btn-primary box-btn">
+        {% bootstrap_icon "remove" %} Clear
+     </button>
+         </div>
+
+  {% endbuttons %}
+    </form>
+
+    </div>
+
 {% endblock %}
+
+

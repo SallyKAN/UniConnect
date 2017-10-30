@@ -1,65 +1,109 @@
 <!DOCTYPE html>
-<html lang="en">
 <head>
- <meta charset="UTF-8">
-    <title>{% block title %}UniConnect{% endblock %}</title>
-    {% load staticfiles %}
+    {% block title %}<title>UniConnect</title>{% endblock %}
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-    <link href='https://fonts.googleapis.com/css?family=Satisfy' rel='stylesheet' type='text/css'>
-    <link href="https://fonts.googleapis.com/css?family=Arima+Madurai" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Josefin+Sans" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css?family=Kaushan+Script" rel="stylesheet">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="{% static 'board/style.css' %}"/>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <!-- Google Fonts Import -->
+     <link href="https://fonts.googleapis.com/css?family=Ultra" rel="stylesheet"><!-- UniConnect Brand -->
+    <link href="https://fonts.googleapis.com/css?family=Saira+Extra+Condensed" rel="stylesheet">
+
+
+    <!-- Bootstrap and Jquery Imports-->
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
+     <!-- Add additional CSS in static file -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'board/style.css' %}">
+
+
 </head>
-<body>
-    <div class="container-fluid">
+    <body>
+    <!-- Navigation Bar Begin -->
+        <nav class="navbar">
+         <div class="container-fluid">
+            <div class="navbar-header">
+                <!-- Collapse Navbar - Control when screen is narrowed TO DO: Change Collapse Breakdown -->
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                        <span class="glyphicon glyphicon-menu-hamburger"></span>
+                    </button>
+                 <!-- Branding -->
+            <a class="navbar-brand" id="uniconnect" href="/">UniConnect</a>
+            </div>
+                <!-- Collapse Navbar - Target area-->
+         <div class="collapse navbar-collapse" id="myNavbar">
 
-    <nav class="navbar navbar-inverse" id="menu">
-        <a class="navbar-brand" id="branding" href="/">UniConnect</a>
-        <div id="searchform">
-        <form id="searchform" action="{% url 'search-view' %}" method="get" accept-charset="utf-8">
-            <i class="fa fa-search"></i>
-            <input class="searchfield" id="searchbox" name="q" type="text" placeholder="Search">
-            <button  class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-search"></span>
-        </form>
-        </div>
-
-        <ul class="nav navbar-nav navbar-right" id="menubuttons">
-            <li>
-                <a href="/profile/{{user.username}}">
-                    <span class="glyphicon glyphicon-user">{{user.username}}</span>
+        <!-- Navbar Right side-->
+        <ul class="nav navbar-nav navbar-right">
+            <!-- Login, Logout Toggle-->
+            <li class="menu_item">
+                <a href="/profile/{{user.username}}" class="menu_item">  <!-- Profile-->
+                    <span class="glyphicon glyphicon-user ">  </span> {{user.username}}
                 </a>
             </li>
             {% if user.is_authenticated %}
-            <li><a href="/logout">Logout</a></li>
+
+                <li class="menu_item">
+                    <a href="/logout" class="menu_item">
+                        <span class="glyphicon glyphicon-log-out"></span>
+                    </a>
+                </li>
             {% else %}
-            <li><a href="/login">Login</a></li>
+                <li  class="menu_item">
+                    <a href="/login" class="menu_item">
+                        <span class="glyphicon glyphicon-log-in"></span>
+                    </a>
+                </li>
             {% endif %}
 
-            <li>
-                <a href="/notifications">
+            <!-- Notifications Button-->
+            <li class="menu_item">
+                <a href="/notifications"  class="menu_item">
                     <span class="glyphicon glyphicon-globe"></span>
                 </a>
             </li>
-
-                  <li>
-                <a href="#">
-                    <span class="glyphicon glyphicon-question-sign"></span>
+            <!-- Drop Down Menu Menu Items-->
+            <li>
+                <a href="#" data-toggle="dropdown" class="dropdown-toggle menu_item">
+                    <span class="glyphicon glyphicon-menu-hamburger"></span>
                 </a>
-            </li>
+
+                 <!-- Drop Down Menu Items-->
+                  <ul class="dropdown-menu">
+                      <li><a href="/post">Create New Post</a></li>
+                     <li><a href="/submit/">Edit Profile</a></li>
+                     <li><a href="#">View Tags</a></li>
 
         </ul>
-    </nav>
+            </li>
+        </ul>
+
+        <!-- Search Box: To Do - Search Function-->
+        <form class="navbar-form navbar-right" action="{% url 'search-view' %}" >
+            <div class="input-group">
+                <input type="text" class="form-control" name="q" placeholder="Search">
+                <div class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                        <i class="glyphicon glyphicon-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+
 
     </div>
+  </div>
+</nav>
 
-
-
+<div class="outer">
+ {% block content %}
+ {% endblock %}
+</div>
 </body>
-{% block content %}
-{% endblock %}
+
+</html>
 

@@ -2,15 +2,27 @@
 {% load comments %}
 
 {% block content %}
-    <h1>Seacrch Results for "{{ search_query }}" </h1>
+
+    <div class="heading index-heading">
+    Seacrch Results for "{{ search_query }}"
+    </div>
+
 
 {% for post in search_posts %}
-                    {% get_comment_count for post as comment_count %}
+ <div class="profile-post">
+         <div class="post-title">
+             <a href="/post/{{post.id}}/">{{ post.subject }}</a>
+             <span class="author float-right"> published by: <a href="/profile/{{ post.author}}">{{ post.author }}</a></span>
+         </div>
+         <div class="post-content"> {{ post.content}}</div>
+         {% get_comment_count for post as comment_count %}
+               <div class="post-date">
+                   <div class="float-left">{{post.post_date}}</div>
+                   <div class="float-right">
+                   {{ comment_count }} comments have been posted.</div>
 
-            <h3><a href="/post/{{post.id}}/">{{ post.subject }}</a></h3>
-                    <p>{{ post.author }}</p>
-                    <p>{{ comment_count }} comments</p>
-
-{%endfor %}
+               </div>
+</div>
+             {% endfor %}
 
 {% endblock %}
