@@ -28,7 +28,7 @@
                     <p>{{ post.author }}</p>
                     <p>{{ post.content|truncatewords:2 }}</p>
                     <p>{{ now|timeuntil:post.post_date}} ago</p>
-                    <p>{{ comment_count }} comments</p>
+                    <p>{{ post.comments.all|length }} comments</p>
             {%endfor %}
              <div class="pagination">
     <span class="step-links">

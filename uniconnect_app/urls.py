@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^post/(?P<post_id>\d+)/edit/$', views.edit_post, name='edit_post'),
     url(r'^post/(?P<post_id>\d+)/delete/$', views.delete_post, name='delete-post'),
     url(r'^post/(?P<post_id>\d+)/follow/$', views.follow_post,name='follow-post'),
+    url(r'^post/(?P<post_id>\d+)/comments/add/$', views.create_comment, name='create-comment'),
     url(r'^comments/posted/$', views.comment_posted),
     url(r'^comments/delete_own/(?P<comment_id>.*)/$', views.delete_own_comment, name='delete_own_comment'),
     url(r'^post/(?P<post_id>\d+)/$', views.show_post, name='show-post'),

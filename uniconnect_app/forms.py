@@ -40,7 +40,6 @@ class RegisterForm(UserCreationForm):
         return data
 
 
-
 class ResetPasswordForm(forms.Form):
     email = forms.EmailField(max_length=150, help_text='Required')
 
@@ -53,3 +52,7 @@ class SelectForm(forms.Form):
         ("Recommended", "recommended"),
     )
     order = forms.ChoiceField(choices=OPTIONS)
+
+
+class CommentForm(forms.Form):
+    content = forms.CharField(label='Content',widget=forms.Textarea, max_length=800)
