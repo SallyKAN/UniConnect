@@ -5,18 +5,26 @@
 {% block content %}
 {% load widget_tweaks %}
 <div class="heading index-heading">{{post.subject|title}}</div>
-<div class="heading float-left">By <i><a href="/profile/{{post.author.username}}">{{post.author.username}}</a></i></div>
+<div class="heading float-left pv-author">By <i><a href="/profile/{{post.author.username}}">{{post.author.username}}</a></i></div>
     {% if tags %}
-<div class="heading float-right">Tags:
+<div class="heading float-right pv-tags">Tags:
     {% for tag in tags %}
     <a href="/tag/{{tag.tag}}/">{{tag.tag}}</a>
     {% endfor %}
     {% endif %}
 </div>
-<img src="{{post.picture_link}}" width="140" height=auto></a>
-<div class="post-content pv-content">{{post.content}}</div>
-    <div class="post-date ">Published on  {{ post.post_date }}
+  <div class="post-content pv-content ">
+  {{post.content}}<br><br><br>
+
+    <img src="{{post.picture_link}}" width="140" height=auto>
+
+
+  </div>
+    <div class="post-date vp-date">Published on  {{ post.post_date }}
+
+     <div class="follow-delete">
         <form class="formFollowEvent float-right">
+
             {% csrf_token %}
             <input type="hidden" value="{{ post.id }}" name="post_id">
             <button type="submit" class="btn-default btn-vp follow-button btn-sm">
@@ -85,6 +93,3 @@ fields, timestamps and security hashes -->
     <p class="heading pv-login">Please <a href="{% url 'login' %}">log in</a> to leave a comment.</p>
 {% endif %}
 {% endblock %}
-
-
-

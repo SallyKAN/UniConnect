@@ -242,8 +242,11 @@ form>p>input{
     font-size: small;
 
     padding-top: 10px;
-     padding-bottom: 30px;
+     padding-bottom: 20px;
       border-bottom: solid slategray 2px;
+
+
+
 
 
 }
@@ -457,24 +460,28 @@ pw-complete-box{
 
 .pv-content{
     margin-top: 5%;
-width: 100%;
+width: 80%;
     padding: 0%;
+
+    margin-left: 10%;
 
 }
 
 .comments{
       width: 50%;
     border: none;
-    margin-left: 15%;
+    margin-left: 40%;
      font-family: "Century Gothic";
 }
 
 .comments-box{
-   width: 50%;
+   width: 20%;
     border: none;
     padding: 0;
+    margin-left: 40%;
 
-    background-color: #fdfdfd;
+
+
 
 
 }
@@ -509,5 +516,25 @@ width: 100%;
 .btn-vp{
     position: relative;
     top:-10px;
-    margin: 0;
+    margin-right:10%;
+}
+
+.pv-author{
+    margin-left: 10%;
+}
+
+.pv-tags{
+    margin-right:10%;
+}
+
+.vp-date{
+    margin-left: 10%;
+    margin-right: 10%;
+
+   
+}
+
+.follow-delete{
+
+    float: right;
 }
