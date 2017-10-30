@@ -1,11 +1,12 @@
 {% extends 'uniconnect_app/base.html' %}
 
 {% block content %}
-<form method="post">
-    <h1>test</h1>
-  {% csrf_token %}
-  {{ form.as_p}}
-  <button type="submit">Save changes</button>
-</form>
-
+<div class="box signup-box">
+    <div class="heading">Edit Post</div>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p}}
+        <button type="submit" class="btn-primary box-btn">Save changes</button>
+    </form>
+</div>
 {% endblock %}

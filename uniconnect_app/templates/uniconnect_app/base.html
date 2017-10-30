@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <head>
     {% block title %}<title>UniConnect</title>{% endblock %}
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Google Fonts Import -->
-     <link href="https://fonts.googleapis.com/css?family=Ultra" rel="stylesheet"><!-- UniConnect Brand -->
+    <link href="https://fonts.googleapis.com/css?family=Ultra" rel="stylesheet"><!-- UniConnect Brand -->
     <link href="https://fonts.googleapis.com/css?family=Saira+Extra+Condensed" rel="stylesheet">
 
 
@@ -36,52 +36,46 @@
             </div>
                 <!-- Collapse Navbar - Target area-->
          <div class="collapse navbar-collapse" id="myNavbar">
-
         <!-- Navbar Right side-->
-        <ul class="nav navbar-nav navbar-right">
+             <ul class="nav navbar-nav navbar-right">
             <!-- Login, Logout Toggle-->
-            <li class="menu_item">
-                <a href="/profile/{{user.username}}" class="menu_item">  <!-- Profile-->
-                    <span class="glyphicon glyphicon-user ">  </span> {{user.username}}
-                </a>
-            </li>
-            {% if user.is_authenticated %}
-
-                <li class="menu_item">
+                 <li class="menu_item">
+                     <a href="/profile/{{user.username}}" class="menu_item">  <!-- Profile-->
+                         <span class="glyphicon glyphicon-user ">  </span> {{user.username}}
+                     </a>
+                 </li>
+                 {% if user.is_authenticated %}
+                 <li class="menu_item">
                     <a href="/logout" class="menu_item">
                         <span class="glyphicon glyphicon-log-out"></span>
                     </a>
                 </li>
-            {% else %}
-                <li  class="menu_item">
+                 {% else %}
+                 <li  class="menu_item">
                     <a href="/login" class="menu_item">
                         <span class="glyphicon glyphicon-log-in"></span>
                     </a>
-                </li>
-            {% endif %}
+                 </li>
+                 {% endif %}
 
             <!-- Notifications Button-->
-            <li class="menu_item">
-                <a href="/notifications"  class="menu_item">
-                    <span class="glyphicon glyphicon-globe"></span>
-                </a>
-            </li>
+                 <li class="menu_item">
+                     <a href="/notifications"  class="menu_item">
+                         <span class="glyphicon glyphicon-globe"></span>
+                     </a>
+                 </li>
             <!-- Drop Down Menu Menu Items-->
-            <li>
-                <a href="#" data-toggle="dropdown" class="dropdown-toggle menu_item">
-                    <span class="glyphicon glyphicon-menu-hamburger"></span>
-                </a>
-
+                 <li>
+                     <a href="#" data-toggle="dropdown" class="dropdown-toggle menu_item">
+                         <span class="glyphicon glyphicon-menu-hamburger"></span>
+                     </a>
                  <!-- Drop Down Menu Items-->
-                  <ul class="dropdown-menu">
-                      <li><a href="/post">Create New Post</a></li>
-                     <li><a href="/submit/">Edit Profile</a></li>
-                     <li><a href="#">View Tags</a></li>
-
-        </ul>
-            </li>
-        </ul>
-
+                     <ul class="dropdown-menu">
+                         <li><a href="/post">Create New Post</a></li>
+                         <li><a href="/submit/">Edit Profile</a></li>
+                     </ul>
+                 </li>
+             </ul>
         <!-- Search Box: To Do - Search Function-->
         <form class="navbar-form navbar-right" action="{% url 'search-view' %}" >
             <div class="input-group">
@@ -93,8 +87,6 @@
                 </div>
             </div>
         </form>
-
-
     </div>
   </div>
 </nav>
