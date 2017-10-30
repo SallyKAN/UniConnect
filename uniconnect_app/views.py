@@ -39,7 +39,9 @@ from django.views.decorators.csrf import csrf_protect
 
 @login_required
 @transaction.atomic
-def edit_profile(request):
+@login_required
+@transaction.atomic
+def submit_profile(request):
     if request.method == 'POST':
         user_form = UserForm(request.POST, instance=request.user)
         profile_form = ProfileForm(request.POST, instance=request.user.profile)
@@ -61,16 +63,19 @@ def edit_profile(request):
     })
 
 
-def profile(request, username):
+def update_profile(request, username):
     user = User.objects.get(username=username)
     posts = Post.objects.filter(author=user)
     latest_tags = Tag.objects.filter(tagged__in=posts).distinct()
     user.save()
-    return render(request,'uniconnect_app/profile.html',{
+    if request.user.is_authenticated:
+        return render(request,'uniconnect_app/profile.html',{
         'u': user,
         'posts': posts,
         'tags': latest_tags,
-    })
+        })
+    else:
+        return HttpResponseRedirect('/login/')
 
 
 def index(request):
@@ -208,6 +213,23 @@ def me(request):
     else:
         return HttpResponseRedirect('/login/')
 
+def edit_post(request, post_id):
+    post = Post.objects.get(pk=post_id)
+    if request.method == 'POST':
+        post_form = PostForm(request.POST, instance=post)
+        if post_form.is_valid():
+            post_form.save()
+            messages.success(request, ('Your post has been successfully updated!'))
+            u = post_id
+            url = reverse('show-post', kwargs={'post_id': u})
+            return HttpResponseRedirect(url)
+        else:
+            messages.error(request, ('Please correct the error below.'))
+    else:
+        post_form = PostForm(instance=post)
+    return render(request, 'uniconnect_app/editposts.html', {
+        'form': post_form,
+    })
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -314,7 +336,7 @@ def create_post(request):
         latest_posts = Post.objects.filter(author=request.user).order_by('-post_date')[:5]
         return render(
             request, 'uniconnect_app/create_post.html', {
-                'form': form, 'posts': latest_posts,
+                'form': form, 'posts': latest_posts
             })
     elif request.method == 'POST':
         form = TilForm(request.POST)
@@ -375,7 +397,6 @@ def delete_post(request,post_id=None):
     post.delete()
     return redirect('/')
 
-
 def follow_post(request, post_id=None):
     if not request.user.is_authenticated:
         return HttpResponseRedirect('/login/')
@@ -403,7 +424,6 @@ def delete_own_comment(request, comment_id):
 
 
 
-#deprecated
 def comment_posted( request ):
     if request.GET['c']:
         comment_id, post_id = request.GET['c'].split(':')
@@ -419,12 +439,14 @@ def show_post(request, post_id=None):
     if not post.public:
         if not post.author == request.user:
             return HttpResponseForbidden()
+    now = datetime.now(timezone.utc)
     post_tags = post.tags.all()
     post_comments = post.comments.all()
     if request.user.is_authenticated:
         comment_form = CommentForm()
     return render(request, 'uniconnect_app/view_post.html', {
         'post': post,
+        'now':now,
         'tags': post_tags if len(post_tags) else None,
         'comments' : post_comments,
         'form': comment_form
@@ -478,6 +500,7 @@ def notifications(request):
         })
 
 
+
 def delete_notification(request, notif_id=None):
     if not request.user.is_authenticated:
         return HttpResponseRedirect('/login/')
@@ -485,6 +508,8 @@ def delete_notification(request, notif_id=None):
     if notification.owner == request.user:
         notification.delete()
     return redirect('/notifications/')
+
+    # REST api view.
 
 
 def notify_followers(comment, request, **kwargs):
@@ -495,7 +520,6 @@ def notify_followers(comment, request, **kwargs):
         n.save()
 
 
-# REST api view.
 class PostCreateView(generics.ListCreateAPIView):
     """This class defines the create behavior of our rest api."""
     authentication_classes = (SessionAuthentication, BasicAuthentication)
@@ -567,6 +591,7 @@ class ProfileCreateView(generics.ListCreateAPIView):
 
 
 class ProfileDetailsView(generics.RetrieveUpdateDestroyAPIView):
+    """This class handles the http GET, PUT and DELETE requests."""
 
 
     queryset = Profile.objects.all()
@@ -594,7 +619,8 @@ class CommentCreateView(generics.ListCreateAPIView):
 
 
 class CommentDetailsView(generics.RetrieveUpdateDestroyAPIView):
-    
+    """This class handles the http GET, PUT and DELETE requests."""
+
 
     queryset = DComment.objects.all()
     serializer_class = CommentSerializer

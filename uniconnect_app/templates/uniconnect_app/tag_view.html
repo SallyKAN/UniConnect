@@ -1,15 +1,22 @@
 {% extends 'uniconnect_app/base.html' %}
+{% load comments %}
 
 {% block content %}
-<div class="container"
-  <div class="jumbotron">
-      <h1>Posts tagged {{ tag }}</h1>
-    </div>
-</div>
 
-<div class="container" style="width:40%">
-{% for post in posts %}
-<p><a href="/post/{{post.id}}/">{{ post.subject }}</a></p>
-{%endfor %}
-</div>
+      <div class="heading index-heading">Posts tagged {{ tag }}</div>
+    {% for post in posts %}
+         <div class="profile-post">
+         <div class="post-title">
+             <h3><a href="/post/{{post.id}}/">{{ post.subject }}</a></h3>
+             <span class="author float-right"> published by: <a href="/profile/{{ post.author}}">{{ post.author }}</a></span>
+         </div>
+         <div class="post-content"> {{ post.content}}</div>
+         {% get_comment_count for post as comment_count %}
+             <div class="post-date">
+                 <div class="float-left">{{post.post_date}}</div>
+                 <div class="float-right">
+                   {{ comment_count }} comments have been posted.</div>
+             </div>
+         </div>
+{% endfor %}
 {% endblock %}

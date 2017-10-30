@@ -1,11 +1,15 @@
 {% extends 'uniconnect_app/base.html' %}
 
 {% block content %}
+<div class="box signup-box">
+
+<div class="heading">Edit User Profile for {{user.username}}</div>
 <form method="post">
   {% csrf_token %}
   {{ user_form.as_p }}
   {{ profile_form.as_p }}
-  <button type="submit">Save changes</button>
+  <button type="submit" class="btn-primary box-btn">Save changes</button>
+    <button type="reset" class="btn-primary box-btn">Clear</button>
 </form>
-
+</div>
 {% endblock %}

@@ -1,13 +1,13 @@
 <dl id="comments">
   {% for comment in comment_list %}
     <dt id="c{{ comment.id }}">
-      {{ comment.submit_date }} - <a href="/profile/{{ comment.user.username }}">{{ comment.user.username }}</a>
+        {{ now|timeuntil:comment.submit_date }} ago - <a href="/profile/{{post.author.username}}">{{ comment.name }}</a>
     </dt>
     <dd>
       <p>{{ comment.comment }}</p>
     </dd>
       {% if user.is_authenticated and comment.user == user %}
-   <a class="confirm-delete" href="{% url 'delete_own_comment' comment.id %}">delete</a>
+   <a class="confirm-delete" href="{% url 'delete_own_comment' comment.id %}">Delete Comment</a>
 {% endif %}
       <script>
         $(document).on('click', '.confirm-delete', function(){

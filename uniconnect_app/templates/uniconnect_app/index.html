@@ -1,23 +1,43 @@
 {% extends 'uniconnect_app/base.html' %}
 {% load comments %}
- {% load humanize %}
+{% load humanize %}
 {% block content %}
-    <div class="container-fluid">
-    <div class="row">
-        <div class="col-lg-1">
-            <p>Hello, {{user.username}}<small><a href="/edit/profile">(edit profile)</a></small></p>
-            <h3>Tags</h3>
-            {% for tag in tags %}
-                <p><a href="/tag/{{tag.tag}}/">{{ tag.tag }}</a></p>
-            {%endfor %}
-        </div>
-        <div class="col-lg-10">
-            <div class="container" style="width:40%">
-                <p><a href="/post/">Create a new post</a></p>
-                <h3>Recent posts</h3>
-               <div id = selectform>
+
+{% if user.is_authenticated %}
+<div class="heading index-heading">Dashboard for {{user.username}}</div>
+<nav class="navbar navbar-default nav-index">
+    <ul class="nav navbar-nav nav-index-list">
+        <li><a href="/post"  ><span class="glyphicon glyphicon-pencil"></span> &nbsp; New Post</a></li>
+        <li><a href="/profile/{{user.username}}" ><span class="glyphicon glyphicon-blackboard"></span> &nbsp; Profile</a></li>
+        <li><a href="/submit" ><span class="glyphicon glyphicon-blackboard"></span> &nbsp;Edit Profile</a></li>
+        <li><a href="/logout" ><span class="glyphicon glyphicon-log-out"></span> &nbsp; Logout</a></li>
+    </ul>
+</nav>
+{% else%}
+<div class="heading index-heading">Welcome to Uniconnect</div>
+<nav class="navbar navbar-default nav-index">
+    <ul class="nav navbar-nav nav-index-list">
+        <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> &nbsp; Login</a></li>
+        <li><a href="/signup"><span class="glyphicon glyphicon-exclamation-sign"></span> &nbsp; Signup</a></li>
+    </ul>
+</nav>
+{% endif %}
+<div class="container-fluid">
+<div class="row">
+    <div class="col-lg-2">
+        <div class="heading">Tags</div>
+        {% for tag in tags %}
+        <div class="tag-list"><a href="/tag/{{tag.tag}}/"> <span class="glyphicon glyphicon-tag"></span> &nbsp;&nbsp;
+            {{ tag.tag }}</a></div>
+        {% endfor %}
+    </div>
+    <div class="col-lg-10">
+        <div class="background">
+            <div class="heading float-left">Recent Posts
+            </div>
+            <div class="sort-box float-right">
                <form class="form-horizontal" method='post'>
-                    {% csrf_token %}
+                   {% csrf_token %}
                    {{ select_form }}
                    <input type='submit' value='Sort'>
                 </form>
@@ -43,16 +63,36 @@
         {% endif %}
     </span>
 </div>
+
             </div>
-
         </div>
+        {% for post in posts %}
+        <div class="post-title">
+            <h3><a href="/post/{{post.id}}/">{{ post.subject }}</a></h3>
+            <span class="author float-right"> published by: <a href="/profile/{{ post.author}}">{{ post.author }}</a></span>
         </div>
-
+        <div class="post-content"> {{ post.content |truncatechars:200}}</div>
+        {% get_comment_count for post as comment_count %}
+        <div class="post-date">
+            <div class="float-left">{{ now|timeuntil:post.post_date}} ago</div>
+            <div class="float-right">
+                {{ comment_count }} comments </div>
+        </div>
+        {% endfor %}
+        <div class="pagination">
+            <span class="step-links">
+                {% if posts.has_previous %}
+                <a href="?page={{ posts.previous_page_number }}">previous</a>
+                {% endif %}
+                <span class="current">
+                    Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
+                </span>
+                {% if posts.has_next %}
+                <a href="?page={{ posts.next_page_number }}">next</a>
+                {% endif %}
+            </span>
+        </div>
     </div>
-
-
-
-
-
-
+</div>
+</div>
 {% endblock %}
