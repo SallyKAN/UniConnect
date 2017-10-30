@@ -394,9 +394,11 @@ def show_post(request, post_id=None):
     if not post.public:
         if not post.author == request.user:
             return HttpResponseForbidden()
+    now = datetime.now(timezone.utc)
     post_tags = post.tags.all()
     return render(request, 'uniconnect_app/view_post.html', {
         'post': post,
+        'now':now,
         'tags': post_tags if len(post_tags) else None,
     })
 
