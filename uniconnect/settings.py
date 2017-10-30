@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django_comments',
     'django.contrib.postgres',
+    'django.contrib.humanize',
     'rest_framework',
 ]
 
