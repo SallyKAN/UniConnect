@@ -65,11 +65,14 @@ def update_profile(request, username):
     posts = Post.objects.filter(author=user)
     latest_tags = Tag.objects.filter(tagged__in=posts).distinct()
     user.save()
-    return render(request,'uniconnect_app/profile.html',{
+    if request.user.is_authenticated:
+        return render(request,'uniconnect_app/profile.html',{
         'u': user,
         'posts': posts,
         'tags': latest_tags,
-    })
+        })
+    else:
+        return HttpResponseRedirect('/login/')
 
 
 def index(request):
@@ -318,6 +321,7 @@ def create_post(request):
         if form.is_valid():
             p = Post(
                 subject=form.cleaned_data.get('subject'),
+                picture_link=form.cleaned_data.get('picture_link'),
                 content=form.cleaned_data.get('content'),
                 author=request.user,
                 public=form.cleaned_data.get('public'),

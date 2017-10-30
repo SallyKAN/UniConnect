@@ -3,38 +3,30 @@
 {% load staticfiles %}
 {% load comments %}
 {% block content %}
-    {% load widget_tweaks %}
-
-
-    <div class="heading index-heading">{{post.subject|title}}</div>
-    <div class="heading">
-
-    </div><div class="heading float-left">By <i>{{post.author.username}} </i></div>
-    <a href="/post/{{post.id}}/edit">edit</a>
-
+{% load widget_tweaks %}
+<div class="heading index-heading">{{post.subject|title}}</div>
+<div class="heading float-left">By <i><a href="/profile/{{post.author.username}}">{{post.author.username}}</a></i></div>
     {% if tags %}
-   <div class="heading float-right">Tags:
-        {% for tag in tags %}
-        <a href="/tag/{{tag.tag}}/">{{tag.tag}}</a>
-
-        {% endfor %}
-        {% endif %}
-    </div>
-
-<div class="post-content pv-content center">{{post.content}}</div>
+<div class="heading float-right">Tags:
+    {% for tag in tags %}
+    <a href="/tag/{{tag.tag}}/">{{tag.tag}}</a>
+    {% endfor %}
+    {% endif %}
+</div>
+<img src="{{post.picture_link}}" width="140" height=auto></a>
+<div class="post-content pv-content">{{post.content}}</div>
     <div class="post-date ">Published on  {{ post.post_date }}
-
-        <form class="formFollowEvent">
-    {% csrf_token %}
-    <input type="hidden" value="{{ post.id }}" name="post_id">
-    <button type="submit" class="btn-primary follow-button btn-sm">
-        {% if user in post.followers.all %}
-            {% trans "Unfollow" %}
-         {% else %}
-            {% trans "Follow" %}
-        {% endif %}</button>
-</form>
-<script>
+        <form class="formFollowEvent float-right">
+            {% csrf_token %}
+            <input type="hidden" value="{{ post.id }}" name="post_id">
+            <button type="submit" class="btn-default btn-vp follow-button btn-sm">
+                {% if user in post.followers.all %}
+                {% trans "Unfollow" %}
+                {% else %}
+                {% trans "Follow" %}
+                {% endif %}</button>
+        </form>
+        <script>
     $('.formFollowEvent').on('submit', function(e) {
     e.preventDefault();
 
@@ -53,54 +45,45 @@
     })
 });
 </script>
-
-
-
-<script href="{% static 'board/follow.js' %}"></script>
-    {% if user == post.author %}
-        <a class="confirm-delete" href="{% url 'delete-post' post.id %}">Delete</a>
+        <a href="/post/{{post.id}}/edit" class="float-right vp-link">Edit Post</a>
+        <script href="{% static 'board/follow.js' %}"></script>
+        {% if user == post.author %}
+        <a class="confirm-delete float-right vp-link" href="{% url 'delete-post' post.id %}">Delete Post</a>
         <script>
         $(document).on('click', '.confirm-delete', function(){
             return confirm('Are you sure you want to delete this post?');
         })
         </script></div>
-    {% endif %}
-    </div>
-
-    <div class="comments">
+{% endif %}
+</div>
+<div class="comments">
     {% get_comment_count for post as comment_count %}
-    <p class="heading">{{ comment_count }} comments </p>
-
+    <p class="heading">{{ comment_count }} comments have been posted.</p>
     {% render_comment_list for post %}
-    </div>
-
+</div>
 </div>
     <!--<a href=  % url 'delete-post'%}>delete</a> -->
 <!-- A context variable called form is created with the necessary hidden
 fields, timestamps and security hashes -->
-    {% if user.is_authenticated %}
-    {% get_comment_form for post as form %}
-        <div class="box comments-box">
-    <form action="{% comment_form_target %}" method="POST" class="comments-form" >
-     <h2 id="comment-heading">PLEASE ENTER COMMENT</h2>
-    {% csrf_token %}
-    {{ form.comment|add_class:"comment"}}<br>
-    {{ form.content_type }}
-    {{ form.object_pk }}
-    {{ form.timestamp }}
-    {{ form.security_hash }}
-    <input type="hidden" name="next" value={% url 'show-post' post.id  %}>
-    <input type="submit" class="btn-primary" value="Add comment" id="id_submit" />
+{% if user.is_authenticated %}
+{% get_comment_form for post as form %}
+<div class="box comments-box">
+    <form action="{% comment_form_target %}" method="POST" class="comments-form">
+        <h2 id="comment-heading">PLEASE ENTER COMMENT</h2>
+        {% csrf_token %}
+        {{ form.comment|add_class:"comment"}}<br>
+        {{ form.content_type }}
+        {{ form.object_pk }}
+        {{ form.timestamp }}
+        {{ form.security_hash }}
+        <input type="hidden" name="next" value={% url 'show-post' post.id  %}>
+        <input type="submit" class="btn-primary" value="Add comment" id="id_submit" />
         <input type="reset" class="btn-primary" value="Clear" id="id_submit" />
     </form>
-    </div>
-
-    </form>
+</div>
 {% else %}
     <p class="heading pv-login">Please <a href="{% url 'login' %}">log in</a> to leave a comment.</p>
 {% endif %}
-
-
 {% endblock %}
 
 

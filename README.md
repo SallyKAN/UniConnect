@@ -5,7 +5,7 @@ Download the source code by using git:
 
 ```
 
-git clone https://github.com/amitsaha/til.git
+git clone https://username@bitbucket.org/elec3609_group7/uniconnect.git
 ```
 
 ## Model Setup
@@ -23,20 +23,45 @@ $ python manage.py runserver 0.0.0.0:8000
 
 Go to `127.0.0.1:8000`
 
-### Django Resources
+### REST API use
 
-I used these for help:
+type url:
+```
+http://127.0.0.1:8000/postapi/
+```
+to create a post
 
-- https://docs.djangoproject.com/en/1.11/ref/csrf/
-- http://www.janosgyerik.com/django-authenticationform-gotchas/
-- https://django-bootstrap3.readthedocs.io/en/latest/quickstart.html#example-template
-- https://simpleisbetterthancomplex.com/tutorial/2017/02/18/how-to-create-user-sign-up-view.html
-- https://stackoverflow.com/questions/14647723/django-forms-if-not-valid-show-form-with-error-message
+```
+http://127.0.0.1:8000/postapi/id
+```
+to view a post detail
 
+```
+http://127.0.0.1:8000/userapi/
+```
+to create a user (only for Admin)
 
-## Web application Resources
+```
+http://127.0.0.1:8000/userapi/id
+```
+to view a user detail
 
-- [A typical HTTP session](https://developer.mozilla.org/en-US/docs/Web/HTTP/Session)
-- [HTTP Cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
-- [HTTP Compression](https://developer.mozilla.org/en-US/docs/Web/HTTP/Compression)
+```
+http://127.0.0.1:8000/profileapi/
+```
+to create a profile for user
 
+```
+http://127.0.0.1:8000/profileapi/id
+```
+to view a user profile
+
+```
+http://127.0.0.1:8000/commentapi/
+```
+to create a comment
+
+```
+http://127.0.0.1:8000/commentapi/id
+```
+to view a comment

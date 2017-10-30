@@ -18,7 +18,7 @@
             {% else %}
             <a href="#aboutModal" data-toggle="modal" data-target="#myModal"><img src="https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Panda-512.png" name="aboutme" width="140" height="140" class="img-circle"></a>
             {% endif %}
-            <h2>{{u.username}}</a><small>{{u.profile.location}}</small></h2>
+            <h2>{{u.username}}<small>&nbsp;{{u.profile.location}}</small></h2>
             <h3><small>{{u.profile.uni}}, Year {{u.profile.year}}</small></h3>
             <em>click my face for more</em>
 		</center>
@@ -44,7 +44,7 @@
                         {% else %}
                         <img src="https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Panda-512.png" name="aboutme" width="140" height="140" class="img-circle"></a>
                         {% endif %}
-                    <h3 class="media-heading heading">{{u.username}}<small>{{u.profile.location}}</small></h3>
+                    <h3 class="media-heading heading">{{u.username}}<small>&nbsp;{{u.profile.location}}</small></h3>
                     <span><strong>Date Joined: </strong>{{u.profile.date_joined}}</span>
                     </center>
                     <hr>
@@ -64,26 +64,19 @@
     </div>
 </div>
 
-     {% for post in posts %}
-         <div class="profile-post">
-         <div class="post-title">
-             <a href="/post/{{post.id}}/">{{ post.subject }}</a>
-             <span class="author float-right"> published by: <a href="/profile/{{ post.author}}">{{ post.author }}</a></span>
-         </div>
-         <div class="post-content"> {{ post.content}}</div>
-         {% get_comment_count for post as comment_count %}
-               <div class="post-date">
-                   <div class="float-left">{{post.post_date}}</div>
-                   <div class="float-right">
-                   {{ comment_count }} comments have been posted.</div>
-
-               </div>
+{% for post in posts %}
+<div class="profile-post">
+    <div class="post-title">
+        <h3><a href="/post/{{post.id}}/">{{ post.subject }}</a></h3>
+        <span class="author float-right"> published by: <a href="/profile/{{ post.author}}">{{ post.author }}</a></span>
+    </div>
+    <div class="post-content"> {{ post.content}}</div>
+    {% get_comment_count for post as comment_count %}
+    <div class="post-date">
+        <div class="float-left">{{post.post_date}}</div>
+        <div class="float-right">
+            {{ comment_count }} comments have been posted.</div>
+    </div>
 </div>
-             {% endfor %}
-
-
-
-
-
-
+{% endfor %}
 {% endblock %}

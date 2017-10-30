@@ -123,8 +123,8 @@ form>p>input{
 
 .navbar-brand:hover{
 
-    background-color: lightgreen;
-    color: black;
+    background-color: slategray;
+    color: white;
 }
 
 .navbar-nav>li>a{
@@ -134,8 +134,8 @@ form>p>input{
 
 
 .navbar-nav>li>a:hover{
-    background-color:lightgreen ;
-    color: black;
+    background-color:slategray ;
+    color: white;
 
 }
 
@@ -499,4 +499,15 @@ width: 100%;
 
 .pv-login{
     margin-left:2%;
+}
+
+.vp-link{
+
+    margin-right: 15px;
+}
+
+.btn-vp{
+    position: relative;
+    top:-10px;
+    margin: 0;
 }
