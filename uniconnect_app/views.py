@@ -290,6 +290,7 @@ def create_post(request):
         if form.is_valid():
             p = Post(
                 subject=form.cleaned_data.get('subject'),
+                picture_link=form.cleaned_data.get('picture_link'),
                 content=form.cleaned_data.get('content'),
                 author=request.user,
                 public=form.cleaned_data.get('public'),
@@ -324,9 +325,9 @@ def edit_post(request, post_id):
         post_form = PostForm(request.POST, instance=post)
         if post_form.is_valid():
             post_form.save()
-            messages.success(request, ('Your profile was successfully updated!'))
-            u = request.user.username
-            url = reverse('profile', kwargs={'username': u})
+            messages.success(request, ('Your post has been successfully updated!'))
+            u = post_id
+            url = reverse('show-post', kwargs={'post_id': u})
             return HttpResponseRedirect(url)
         else:
             messages.error(request, ('Please correct the error below.'))

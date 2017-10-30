@@ -8,7 +8,7 @@
     <h3>{{post.subject|title}}</h3>
     <a href="/post/{{post.id}}/edit">edit</a>
     <h4>By <i>{{post.author.username}} </i></h4>
-    <h4>By <i><a href="/profile/{{post.author.username}}">{{post.author.username}}</a> </i></h4>
+    <img src="{{post.picture_link}}" width="140" height=auto></a>
     {% if tags %}
     <h4>Tags: 
         {% for tag in tags %}
