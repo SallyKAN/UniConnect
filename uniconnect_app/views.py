@@ -4,11 +4,11 @@ from django.http import (
     HttpResponseForbidden, HttpResponseNotFound,
 )
 import random
-from .models import Notification, Tag, Post, User, UserForm, ProfileForm,Profile, PostForm, Comment
-from .forms import TilForm, RegisterForm,SelectForm, CommentForm
+from .models import Notification, Tag, Post, User, UserForm, ProfileForm,Profile, PostForm
+from .forms import TilForm, RegisterForm,SelectForm
 from .tokens import account_activation_token
 from datetime import datetime
-from  django_comments.models import Comment as DComment
+from  django_comments.models import Comment
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
@@ -34,9 +34,6 @@ from rest_framework.permissions import IsAdminUser
 from django.http import JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datetime import datetime, timezone
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_protect
-
 @login_required
 @transaction.atomic
 @login_required
@@ -309,25 +306,6 @@ def activate(request, uidb64, token):
         return HttpResponse('Activation link is invalid!')
 
 
-@csrf_protect
-@require_POST
-def create_comment(request, post_id=None):
-    if not request.user.is_authenticated:
-        return HttpResponseRedirect('/login/')
-    form = CommentForm(request.POST)
-    if form.is_valid():
-        c = Comment(
-            parent = Post.objects.get(id=post_id),
-            author = request.user,
-            text = form.cleaned_data.get('content')
-        )
-        c.save()
-        if c.parent:
-            notify_followers(c, request)
-            return HttpResponseRedirect('/post/{0}/'.format(c.parent.id))
-    return HttpResponseRedirect("/")
-
-
 def create_post(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect('/login/')
@@ -373,25 +351,6 @@ def create_post(request):
         return HttpResponseNotAllowed('{0} Not allowed'.format(request.method))
 
 
-def edit_post(request, post_id):
-    post = Post.objects.get(pk=post_id)
-    if request.method == 'POST':
-        post_form = PostForm(request.POST, instance=post)
-        if post_form.is_valid():
-            post_form.save()
-            messages.success(request, ('Your post has been successfully updated!'))
-            u = post_id
-            url = reverse('show-post', kwargs={'post_id': u})
-            return HttpResponseRedirect(url)
-        else:
-            messages.error(request, ('Please correct the error below.'))
-    else:
-        post_form = PostForm(instance=post)
-    return render(request, 'uniconnect_app/editposts.html', {
-        'form': post_form,
-    })
-
-
 def delete_post(request,post_id=None):
     post = get_object_or_404(Post, pk=post_id)
     post.delete()
@@ -414,15 +373,12 @@ def follow_post(request, post_id=None):
 
 
 def delete_own_comment(request, comment_id):
-    if not request.user.is_authenticated:
-        return HttpResponseRedirect('/login/')
-    comment = Comment.objects.get(id=comment_id)
-    p = comment.parent
-    if comment.author == request.user:
-        comment.delete()
-    return HttpResponseRedirect(p.get_absolute_url())
-
-
+    comment = get_object_or_404(Comment, pk=comment_id)
+    if comment.user.id != request.user.id:
+        raise Http404
+    perform_delete(request, comment)
+    return HttpResponseRedirect(comment.content_object.get_absolute_url())
+    comment.save()
 
 def comment_posted( request ):
     if request.GET['c']:
@@ -432,7 +388,6 @@ def comment_posted( request ):
             return HttpResponseRedirect(post.get_absolute_url())
     return HttpResponseRedirect("/")
 
-
 def show_post(request, post_id=None):
     post = Post.objects.filter(id=post_id)[0]
     # if the post is not public, only viewable by the author
@@ -441,15 +396,10 @@ def show_post(request, post_id=None):
             return HttpResponseForbidden()
     now = datetime.now(timezone.utc)
     post_tags = post.tags.all()
-    post_comments = post.comments.all()
-    if request.user.is_authenticated:
-        comment_form = CommentForm()
     return render(request, 'uniconnect_app/view_post.html', {
         'post': post,
         'now':now,
         'tags': post_tags if len(post_tags) else None,
-        'comments' : post_comments,
-        'form': comment_form
     })
 
 
@@ -501,6 +451,8 @@ def notifications(request):
 
 
 
+
+
 def delete_notification(request, notif_id=None):
     if not request.user.is_authenticated:
         return HttpResponseRedirect('/login/')
@@ -511,13 +463,6 @@ def delete_notification(request, notif_id=None):
 
     # REST api view.
 
-
-def notify_followers(comment, request, **kwargs):
-    post = Post.objects.get(pk=comment.parent.id)
-    for follower in post.followers.all():
-        text = "New comment on your post" if (follower == post.author) else "New comment on a post you follow"
-        n = Notification(owner=follower, post=post, text=text)
-        n.save()
 
 
 class PostCreateView(generics.ListCreateAPIView):
@@ -610,7 +555,7 @@ class CommentCreateView(generics.ListCreateAPIView):
         }
         return Response(content)
 
-    queryset = DComment.objects.all()
+    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 
     def perform_create(self, serializer):
@@ -622,5 +567,5 @@ class CommentDetailsView(generics.RetrieveUpdateDestroyAPIView):
     """This class handles the http GET, PUT and DELETE requests."""
 
 
-    queryset = DComment.objects.all()
+    queryset = Comment.objects.all()
     serializer_class = CommentSerializer

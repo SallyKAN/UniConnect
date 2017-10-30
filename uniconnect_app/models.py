@@ -35,6 +35,14 @@ def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
 
 
+def notify_followers(comment, request, **kwargs):
+    post = Post.objects.get(pk=comment.object_pk)
+    for follower in post.followers.all():
+        text = "New comment on your post" if (follower == post.author) else "New comment on a post you follow"
+        n = Notification(owner=follower, post=post, text=text)
+        n.save()
+
+
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
@@ -61,26 +69,13 @@ class Post(models.Model):
         return reverse('show-post', kwargs={'post_id': self.id})
 
 
-
 class Notification(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     text = models.CharField(max_length=36,default="New comment on a post you follow")
     notif_date = models.DateTimeField(auto_now_add=True)
 
-
-class Comment(models.Model):
-    parent = models.ForeignKey(Post, related_name="comments", on_delete=models.CASCADE)
-    author = models.ForeignKey(User, related_name="comments", on_delete=models.CASCADE)
-    text = models.CharField(max_length=500)
-    comment_date = models.DateTimeField(auto_now_add=True)
-
-
-class Votes(models.Model):
-    upvote = models.BooleanField()
-    voter = models.ForeignKey(User, related_name="votes", on_delete=models.CASCADE)
-    comment = models.ForeignKey(Comment, related_name="votes", on_delete=models.CASCADE)
-
+comment_was_posted.connect(notify_followers)
 
 class PostForm(forms.ModelForm):
     class Meta:

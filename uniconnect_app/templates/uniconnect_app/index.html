@@ -41,29 +41,6 @@
                    {{ select_form }}
                    <input type='submit' value='Sort'>
                 </form>
-               </div>
-                {% for post in posts %}
-                    {% get_comment_count for post as comment_count %}
-            <h3><a href="/post/{{post.id}}/">{{ post.subject }}</a></h3>
-                    <p>{{ post.author }}</p>
-                    <p>{{ post.content|truncatewords:2 }}</p>
-                    <p>{{ now|timeuntil:post.post_date}} ago</p>
-                    <p>{{ post.comments.all|length }} comments</p>
-            {%endfor %}
-             <div class="pagination">
-    <span class="step-links">
-        {% if posts.has_previous %}
-            <a href="?page={{ posts.previous_page_number }}">previous</a>
-        {% endif %}
-        <span class="current">
-            Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
-        </span>
-        {% if posts.has_next %}
-            <a href="?page={{ posts.next_page_number }}">next</a>
-        {% endif %}
-    </span>
-</div>
-
             </div>
         </div>
         {% for post in posts %}
