@@ -1,9 +1,16 @@
-from django.test import TestCase
+from django.test import TestCase, SimpleTestCase
+from django.test import Client
 from django.urls import reverse
-from .models import Notification, User, Post, Profile
+from .models import Notification, User, Post, Profile, Tag
+from django.contrib.auth.models import User
+from uniconnect_app.views import create_post
+from django.test.utils import setup_test_environment
+from django.template.response import SimpleTemplateResponse, TemplateResponse
+from .forms import *
 from django.utils import timezone
 from django.core import mail
-from .forms import TilForm, RegisterForm
+from django_comments.forms import CommentForm
+from django_comments.models import Comment
 # Create your tests here.
 
 def create_notif(user, post):
@@ -15,7 +22,7 @@ def create_user(email, first_name, last_name, password, u):
 def create_post(s,c,p,f,a, t):
     return Post.objects.create(subject=s, content=c, public=p, post_date=timezone.now(), followers=f, author=a, id=1, tags = t)
 
-class NotifTests(TestCase):
+class Notif_Follow_Tests(TestCase):
 
     def setUp(self):
         self.credentials = {
@@ -54,8 +61,32 @@ class NotifTests(TestCase):
             fol.extend(l)
         self.assertEqual(u, fol)
 
+class PassReset(TestCase):
 
-class LogIn_SignUp_PassReset_Test(TestCase):
+    def setUp(self):
+        self.credentials = {
+            'username': 'testuser',
+            'email': 'test@example.com',
+            'password': 'secret'}
+
+    def test_rest_pass(self):
+        User.objects.create_user(**self.credentials)
+        response = self.client.post(reverse('password_reset'),
+                                    data={'email':'test@example.com'})
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_rest_pass_fail_non_user(self):
+        response = self.client.post(reverse('password_reset'),
+                                    data={'email':'test@example.com'})
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_pass_reset_view_get(self):
+            response = self.client.get(reverse('password_reset'))
+            self.assertEqual(response.status_code, 200)
+            self.assertTemplateUsed(response,
+                                    'registration/password_reset_form.html')
+
+class SignUp_Test(TestCase):
 
     def setUp(self):
         self.credentials = {
@@ -69,18 +100,6 @@ class LogIn_SignUp_PassReset_Test(TestCase):
             self.assertTemplateUsed(response,
                                     'uniconnect_app/signup.html')
 
-    def test_login_view_get(self):
-            response = self.client.get(reverse('login'))
-            self.assertEqual(response.status_code, 200)
-            self.assertTemplateUsed(response,
-                                    'uniconnect_app/login.html')
-
-    def test_pass_reset_view_get(self):
-            response = self.client.get(reverse('password_reset'))
-            self.assertEqual(response.status_code, 200)
-            self.assertTemplateUsed(response,
-                                    'registration/password_reset_form.html')
-
     def test_registration_view_post_success(self):
         response = self.client.post(reverse('signup'),
                                     data={'username': 'eve',
@@ -88,17 +107,6 @@ class LogIn_SignUp_PassReset_Test(TestCase):
                                           'password1': 'Password123',
                                           'password2': 'Password123'})
         self.assertEqual(len(mail.outbox), 1)
-
-    def test_rest_pass(self):
-        User.objects.create_user(**self.credentials)
-        response = self.client.post(reverse('password_reset'),
-                                    data={'email':'test@example.com'})
-        self.assertEqual(len(mail.outbox), 1)
-
-    def test_rest_pass_fail_non_user(self):
-        response = self.client.post(reverse('password_reset'),
-                                    data={'email':'test@example.com'})
-        self.assertEqual(len(mail.outbox), 0)
 
     def test_signup_fail_diff_pass(self):
         response = self.client.post(reverse('signup'),
@@ -198,6 +206,23 @@ class LogIn_SignUp_PassReset_Test(TestCase):
         self.failIf(response.context['form'].is_valid())
         self.assertEqual(len(mail.outbox), 0)
 
+    def test_registration_profile_created(self):
+        User.objects.create_user(**self.credentials)
+        self.assertEqual(Profile.objects.count(), 1)
+
+class LogIn(TestCase):
+    def setUp(self):
+        self.credentials = {
+            'username': 'testuser',
+            'email': 'test@example.com',
+            'password': 'secret'}
+
+    def test_login_view_get(self):
+            response = self.client.get(reverse('login'))
+            self.assertEqual(response.status_code, 200)
+            self.assertTemplateUsed(response,
+                                    'uniconnect_app/login.html')
+
     def test_signin_fail_wrong_pass(self):
         User.objects.create_user(**self.credentials)
         response = self.client.post(reverse('login'),
@@ -222,6 +247,65 @@ class LogIn_SignUp_PassReset_Test(TestCase):
         self.assertTrue(response.context['user'].is_active)
         self.assertRedirects(response, '/me/')
 
-    def test_registration_profile_created(self):
-        User.objects.create_user(**self.credentials)
-        self.assertEqual(Profile.objects.count(), 1)
+class Create_PostTestCase(TestCase):
+
+
+    def test_filter(self):
+        u = User.objects.create_user(username='Alpha', password='password123', email="alpha@alpha.com")
+        u.save()
+
+        self.client = Client()
+        self.client.login(username='Alpha', password='password123')
+        p = Post.objects.create(id=1, subject="Hello", content="Lorum Ipsom djsjdj", public=True, author=User(id=2))
+        p.save()
+        q = Post.objects.create(id=2, subject="Hello", content="Lorum Ipsom djsjdj", public=True, author=User(id=2))
+        q.save()
+        r = Post.objects.create(id=3, subject="Hello", content="Lorum Ipsom djsjdj", public=True, author=User(id=2))
+        r.save()
+        response = self.client.post(reverse('me'))
+        self.assertEqual(response.status_code, 200)
+        test_date = [r, q, p]
+        comp1 = []
+        for t in test_date:
+            comp1.append(t.id)
+        form = SelectForm(data={"order": "Oldest"})
+        self.assertTrue(form.is_valid())
+
+        posts = response.context['posts']
+        ob = posts.object_list
+        comp2 = []
+        for o in ob:
+            comp2.append(o.id)
+
+        self.assertEquals(comp1, comp1)
+
+    def test_create_post(self):
+        u = User.objects.create_user(username='Alpha', password='password123', email="alpha@alpha.com")
+        u.save()
+        self.client = Client()
+        self.client.login(username='Alpha', password='password123')
+        p = Post.objects.create(id=2, subject="Hello", content="Lorum Ipsom djsjdj", public=True, author=User(id=1))
+        p.save()
+        response = self.client.get(reverse('create-post'))
+        self.assertEqual(response.status_code, 200)
+        response = Post.objects.get(id=2)
+        self.assertEqual(response.id, 2)
+        self.assertEqual(response.subject, "Hello")
+
+    def test_create_post_nologin(self):
+        response = self.client.get(reverse('create-post'))
+        expectedurl = '/login/'
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects (response,expected_url=expectedurl)
+
+    def test_post_view(self):
+        u = User.objects.create_user(username='Alpha', password='password123', email="alpha@alpha.com")
+        u.save()
+        self.client = Client()
+        self.client.login(username='Alpha', password='password123')
+        p = Post.objects.create(id=5, subject="Hello", content="Lorum Ipsom djsjdj", public=True, author=User(id=3))
+        p.save()
+        response = self.client.get(reverse('show-post', kwargs={'post_id': 5}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response,'Lorum Ipsom djsjdj')
+        self.assertContains(response, 'Hello')
