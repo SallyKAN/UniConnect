@@ -1,7 +1,7 @@
 <dl id="comments">
   {% for comment in comment_list %}
     <dt id="c{{ comment.id }}">
-        {{ now|timeuntil:comment.submit_date }} ago - <a href="/profile/{{post.author.username}}">{{ comment.name }}</a>
+        {{ now|timeuntil:comment.submit_date }} ago - <a href="/profile/{{comment.name}}">{{ comment.name }}</a>
     </dt>
     <dd>
       <p>{{ comment.comment }}</p>

@@ -8,7 +8,7 @@ from django.forms import ModelForm,CharField
 
 class TilForm(forms.Form):
     subject = forms.CharField(label='Title', max_length=160)
-    picture_link = forms.CharField(label='Link to Media (Picture)', max_length=150)
+    picture_link = forms.CharField(label='Link to Media (Picture)', max_length=150, required=False)
     content = forms.CharField(label='Content',
                               widget=forms.Textarea, max_length=800)
     # four tags separated by a comma
