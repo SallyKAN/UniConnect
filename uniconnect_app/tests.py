@@ -160,6 +160,19 @@ class LogIn_SignUp_PassReset_Test(TestCase):
         self.failIf(response.context['form'].is_valid())
         self.assertEqual(len(mail.outbox), 0)
 
+    def test_signup_fail_email_taken(self):
+        User.objects.create_user(**self.credentials)
+        response = self.client.post(reverse('signup'),
+                                    data={'username': 'eve',
+                                          'email': 'test@example.com',
+                                          'password1': 'Password123',
+                                          'password2': 'Password123'})
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response, 'form', field='email',
+                             errors="A user with that email already exists.")
+        self.failIf(response.context['form'].is_valid())
+        self.assertEqual(len(mail.outbox), 0)
+
     def test_signup_fail_username_as_pass(self):
         response = self.client.post(reverse('signup'),
                                     data={'username': 'evelynlee',
